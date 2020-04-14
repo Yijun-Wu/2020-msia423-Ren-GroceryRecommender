@@ -5,7 +5,7 @@ Author: Jing Ren, QA: Aakanksha Sah
 - [Project Charter](#project-charter)
 - [Backlog](#backlog)
 
-https://data.world/us-usda-gov/27830bd2-53c4-4d7b-9686-eca1a695d92a
+
 
 ## Project Charter
 ### Vision
@@ -13,7 +13,8 @@ With coronavirus impact and Stay-at-Home order, even though you can still shop f
 
 
 ### Mission
-The what of the project. What will be done to achieve this purpose. Be sure to include the data source you intend to use, including a link to the relevant site. 
+To generate grocery lists, this application will first prompt users to input past purchase data from last grocery shopping, and then make recommendations based on nutritional information, regarding to the dataset containing tables of condiments from data.world [https://data.world/us-usda-gov/27830bd2-53c4-4d7b-9686-eca1a695d92a]. With more data input, the list generated will become a closer match to your taste, while guaranteeing nutrition needs. Hopefully users will find the app save their time trying to figure out what food to buy and maintain a healthy diet during the COVID-19 pandemic.
+
 
 ### Success criteria
 How will your business stakeholders (Fausto and Chloe) know the project was successful. What metric will you use to evaluate the performance of your model? What is the minimum value of that metric required for success?
