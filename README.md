@@ -9,8 +9,8 @@ https://data.world/us-usda-gov/27830bd2-53c4-4d7b-9686-eca1a695d92a
 
 ## Project Charter
 ### Vision
-Under coronavirus 
-The why of the project. The reason for the project’s existence. What the problem is you’re trying to solve, not how you’re solving it.
+With coronavirus impact and Stay-at-Home order, even though you can still shop for food at the grocery store while keeping social distancing, you might find some items are in short supply or hesitant to go out at the first place. Many people choose to stock up foods, but what should you buy this time around? It is important to boost immunity in order to fight virus by eating a healthy diet. This application aims to help develop a grocery list that not only meets your appetite but also satisfies your health needs.
+
 
 ### Mission
 The what of the project. What will be done to achieve this purpose. Be sure to include the data source you intend to use, including a link to the relevant site. 
