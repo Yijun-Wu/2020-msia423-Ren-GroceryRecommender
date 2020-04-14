@@ -1,6 +1,27 @@
-# MSiA423 Template Repository
+# MSiA423 Project Repository
 
+Created by Jing Ren, QA by Aakanksha Sah
 <!-- toc -->
+- [Project Charter](#project-charter)
+- [Backlog](#backlog)
+
+## Project Charter
+### Vision
+The why of the project. The reason for the project’s existence. What the problem is you’re trying to solve, not how you’re solving it.
+
+### Mission
+The what of the project. What will be done to achieve this purpose. Be sure to include the data source you intend to use, including a link to the relevant site. 
+
+### Success criteria
+How will your business stakeholders (Fausto and Chloe) know the project was successful. What metric will you use to evaluate the performance of your model? What is the minimum value of that metric required for success?
+
+You should include two success criteria:
+
+The machine learning performance metric (e.g. accuracy, MSE, AUC, etc) that you will assess the model’s performance prior to deployment - what criteria is there for this metric that should be met before it can go live? (this can be negotiated later on).
+The metric that would actually measure the business outcome desired. This could be something like revenue, measures of user engagement, etc. Your app is sadly unlikely to be live long enough to measure this metric (though we would love if you kept it running forever!), but if it were, this what the true model performance and success would be based on.
+
+## Backlog
+
 
 - [Directory structure](#directory-structure)
 - [Running the app](#running-the-app)
