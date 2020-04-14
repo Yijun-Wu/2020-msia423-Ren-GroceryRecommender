@@ -1,12 +1,15 @@
-# MSiA423 Project Repository
+# MSiA423 Grocery Recommender    
+Author: Jing Ren, QA: Aakanksha Sah
 
-Created by Jing Ren, QA by Aakanksha Sah
 <!-- toc -->
 - [Project Charter](#project-charter)
 - [Backlog](#backlog)
 
+https://data.world/us-usda-gov/27830bd2-53c4-4d7b-9686-eca1a695d92a
+
 ## Project Charter
 ### Vision
+Under coronavirus 
 The why of the project. The reason for the project’s existence. What the problem is you’re trying to solve, not how you’re solving it.
 
 ### Mission
