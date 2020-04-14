@@ -3,7 +3,7 @@ Author: Jing Ren, QA: Aakanksha Sah
 
 <!-- toc -->
 - [Project Charter](#project-charter)
-- [Backlog](#backlog)
+- [Planning](#Planning)
 
 ## Project Charter
 ### Vision
@@ -17,7 +17,12 @@ Machine Learning Criteria: The success of this application will be examined by r
 
 Business Success Criteria: This application will be deemed successful if 50% of new users come back to the app, and average session frequency reaches twice per month, showing user engagement.
 
-## Backlog
+## Planning
+### Initiative 1: Data Preprocessing
+
+### Initiative 2: Model Building
+
+### Initiative 3: App Development
 
 
 - [Directory structure](#directory-structure)
