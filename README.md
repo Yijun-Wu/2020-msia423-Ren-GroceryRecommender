@@ -37,7 +37,13 @@ Epic 1
 Epic 2
 - Story 1: Connect modeling part to recommendation result display.
 - Story 2: Create user satisfactory survey.
-
+### Backlog
+I1E1
+I2E1
+### Icebox
+I2E2
+I3E1
+I3E2
 
 - [Directory structure](#directory-structure)
 - [Running the app](#running-the-app)
