@@ -23,10 +23,12 @@ Epic 1
 - Story 1: Make sure to understand the dictionary of data. 
 - Story 2: Clean the data, check format, and handle missing values if needed.
 - Story 3: Store data in cloud platform (icebox)
+
 ### Initiative 2: Model Building
 Epic 1
 - Story 1: Choose set of features to include in model development.
 - Story 2: Evaluate models based on performance and calculation results.
+
 Epic 2
 - Story 1: Train the chosen model on dataset and check its robustness.
 - Story 2: Set up test cases to evaluate functionality.
@@ -34,15 +36,20 @@ Epic 2
 Epic 1
 - Story 1: Develop scripts for user input layout.
 - Story 2: Build the front end app.
+
 Epic 2
 - Story 1: Connect modeling part to recommendation result display.
 - Story 2: Create user satisfactory survey.
 ### Backlog
 I1E1
+
 I2E1
+
 ### Icebox
 I2E2
+
 I3E1
+
 I3E2
 
 - [Directory structure](#directory-structure)
