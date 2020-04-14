@@ -5,24 +5,17 @@ Author: Jing Ren, QA: Aakanksha Sah
 - [Project Charter](#project-charter)
 - [Backlog](#backlog)
 
-
-
 ## Project Charter
 ### Vision
 With coronavirus impact and Stay-at-Home order, even though you can still shop for food at the grocery store while keeping social distancing, you might find some items are in short supply or hesitant to go out at the first place. Many people choose to stock up foods, but what should you buy this time around? It is important to boost immunity in order to fight virus by eating a healthy diet. This application aims to help develop a grocery list that not only meets your appetite but also satisfies your health needs.
 
-
 ### Mission
 To generate grocery lists, this application will first prompt users to input past purchase data from last grocery shopping, and then make recommendations based on nutritional information, regarding to the dataset containing tables of condiments from data.world [https://data.world/us-usda-gov/27830bd2-53c4-4d7b-9686-eca1a695d92a]. With more data input, the list generated will become a closer match to your taste, while guaranteeing nutrition needs. Hopefully users will find the app save their time trying to figure out what food to buy and maintain a healthy diet during the COVID-19 pandemic.
 
-
 ### Success criteria
-How will your business stakeholders (Fausto and Chloe) know the project was successful. What metric will you use to evaluate the performance of your model? What is the minimum value of that metric required for success?
+Machine Learning Criteria: The success of this application will be examined by robustness of recommendations given, since it is hard to measure in an unsupervised learning model without labels. Yet the success of recommendation system also depends mainly on its ability to capture user’s preferences, and therefore, by user-centered metrics, we can prompt rating survey where user can rate his or her satisfaction level from 0 to 5, while average ratings taken as measurement criteria.
 
-You should include two success criteria:
-
-The machine learning performance metric (e.g. accuracy, MSE, AUC, etc) that you will assess the model’s performance prior to deployment - what criteria is there for this metric that should be met before it can go live? (this can be negotiated later on).
-The metric that would actually measure the business outcome desired. This could be something like revenue, measures of user engagement, etc. Your app is sadly unlikely to be live long enough to measure this metric (though we would love if you kept it running forever!), but if it were, this what the true model performance and success would be based on.
+Business Success Criteria: This application will be deemed successful if 50% of new users come back to the app, and average session frequency reaches twice per month, showing user engagement.
 
 ## Backlog
 
