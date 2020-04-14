@@ -19,8 +19,8 @@ Business Success Criteria: This application will be deemed successful if 50% of 
 
 ## Planning
 ### Initiative 1: Data Preprocessing
-Epic 1: Exploratory Data Analysis
-Story 1: Install Docker, anaconda and python libraries
+- Epic 1: Exploratory Data Analysis
+* Story 1: Install Docker, anaconda and python libraries
 •	“Story 1”
 o	“Story 2”
 o	“Story 3”
