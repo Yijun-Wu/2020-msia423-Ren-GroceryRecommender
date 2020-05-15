@@ -52,6 +52,7 @@ I3E1
 
 I3E2
 
+
 - [Directory structure](#directory-structure)
 - [Running the app](#running-the-app)
   * [1. Initialize the database](#1-initialize-the-database)
@@ -113,8 +114,15 @@ I3E2
 ├── requirements.txt                  <- Python package dependencies 
 ```
 
+## Midterm Checkpoint
 ## Running the app
-### 1. Initialize the database 
+### Download the dataset
+Step 1. Click through link https://data.world/us-usda-gov/27830bd2-53c4-4d7b-9686-eca1a695d92a
+Step 2.
+
+
+
+
 
 #### Create the database with a single song 
 To create the database in the location configured in `config.py` with one initial song, run: 
