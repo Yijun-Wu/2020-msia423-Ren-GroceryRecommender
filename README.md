@@ -116,9 +116,16 @@ I3E2
 
 ## Midterm Checkpoint
 ## Running the app
-### Download the dataset
-Step 1. Click through link https://data.world/us-usda-gov/27830bd2-53c4-4d7b-9686-eca1a695d92a
-Step 2.
+### Step 1: Download the dataset
+- Data Source: https://data.world/us-usda-gov/27830bd2-53c4-4d7b-9686-eca1a695d92a
+- File Name: food_display_table.csv  (The file is already downloaded and moved into `data/external` folder)
+Note that, we need to connect to Northwestern VPN for following steps.
+### Step 2. Add Configuration for AWS S3 bucket
+- Upload data to S3 
+`aws s3 cp food_display_table.csv s3://nw-jren-s3-1/food_display_table.csv`
+- Add credential information in `config/s3_config.py`
+Replace access key id and secret access key with your own key from AWS account. 
+
 
 
 
