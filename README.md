@@ -75,6 +75,7 @@ In addition, make sure your IP address is added in inbound rules and consistent 
 
 ### Step 3. Add Configuration for RDS/MYSQL database
 Run this command from root directory,
+
 `vi .mysqlconfig` 
 
 Update the following credentials which will be used to create the database:
@@ -86,6 +87,7 @@ Update the following credentials which will be used to create the database:
 - MYSQL_HOST: RDS instance endpoint (check console)
 
 Save your file and set these environment variables in your setting by running:
+
 `source .mysqlconfig`
 
 ### Step 4. Add Configuration to Determine Whether Create Database Schema Locally in SQLite or in RDS 
@@ -100,15 +102,20 @@ Select whether to use RDS instance or local SQLite database by changing the `DB_
 ### Step 6. Create Database Schema
 
 `docker run --mount type=bind,source="$(pwd)"/data,target=/app/data grocery_recommender src/food_db.py`
+
 To make sure things work out as expected, 
 - If you choose to create database schema locally, you can simply check `data/msia423_db.db`.
 - If you choose to create database schema in RDS, you can connect to SQL database by running `sh run_mysql_client.sh`
+
 After connecting to SQL database, enter query requests:
+
 `use msia423_db;`
+
 `select * from food;`
 
 ### Step 3. Upload Raw Data to S3
 By running command below, the raw datas will be uploaded to your S3 bucket successfully.
+
 `docker run --env-file=mys3config.env --mount type=bind,source="$(pwd)"/data,target=/app/data grocery_recommender src/upload_s3.py`
 
 
