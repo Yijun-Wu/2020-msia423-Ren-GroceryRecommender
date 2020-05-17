@@ -114,4 +114,26 @@ def get_session(engine=None, engine_string=None):
     session = Session()
 
     return session
+    
+    
+def engine_string_generator(db_flag, host, user, password, port, database, conn_type, path):
+    """
+    Creates the path to the location where the RDS or SQLITE database will be created
+    Args:
+        db_flag: either RDS or SQLITE (user's choice)
+        database: database name
+        host, use, password, port, conn_type: RDS setup
+        path: where local sql database will be created
+    Returns:
+        Engine connection
+    """
+    # Engine is local by default
+    engine_string = 'sqlite:///data/food_db.db'
+    # engine_string = config.SQLALCHEMY_DATABASE_URI
+    if db_flag == 'RDS':
+        # create RDS database
+        if host is not None:
+            # Generate engine_string for RDS
+            engine_string = "{}://{}:{}@{}:{}/{}".format(conn_type, user, password, host, port, database)
+    return engine_string
 
