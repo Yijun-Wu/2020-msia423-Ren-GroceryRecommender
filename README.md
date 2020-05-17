@@ -57,17 +57,51 @@ I3E2 - 3 point
 ## Running the app
 ### Step 1: Download the dataset
 - Data Source: https://data.world/us-usda-gov/27830bd2-53c4-4d7b-9686-eca1a695d92a
-- File Name: food_display_table.csv  (The file is already downloaded and moved into `data/external` folder)
+- File Name: food_display_table.csv 
+The file needs to be manually downloaded, you should scroll down webpage to locate it. 
+It is already downloaded and moved into `data/external` folder.
 Note that, we need to connect to Northwestern VPN for following steps.
+
 ### Step 2. Add Configuration for AWS S3 bucket
-- Upload data to S3 
-`aws s3 cp food_display_table.csv s3://nw-jren-s3-1/food_display_table.csv`
-- Add credential information in `config/s3_config.py`
-Replace access key id and secret access key with your own key from AWS account. 
-### Step 3. Create database to local/S3
+In order to connect to S3, you need to change credential information in `src/config.py` and `mys3config.env`.
+Replace access key id and secret access key with your own key from AWS account, as well as the name of your S3 bucket where you will store the data file. Specifically, these variables should be updated:
+- S3_BUCKET
+- AWS_Access_Key_Id
+- AWS_Secret_Key
+In addition, make sure your IP address is added in inbound rules and consistent with RDS setting, even if connected to Northwestern VPN, there might still be differences between IP addresses when you connect several times.
+
+### Step 3. Add Configuration for RDS/MYSQL database
+Run this command from root directory,
+`vi .mysqlconfig` 
+Update the following credentials which will be used to create the database:
+- MYSQL_USER: default is `admin` when setting up RDS instance
+- MYSQL_PASSWORD: password used to create database server
+- MYSQL_PORT: 3306 
+- DATABASE_NAME: msia423_db
+- MYSQL_HOST: RDS instance endpoint (check console)
+Save your file and set these environment variables in your setting by running:
 `source .mysqlconfig`
-`sh run_mysql_client.sh`
+
+### Step 4. Add Configuration to Determine Whether Create Database Schema Locally in SQLite or in RDS 
+Select whether to use RDS instance or local SQLite database by changing the `DB_FLAG` variable in `config.py`.
+- If creating database schema locally, set `DB_FLAG = ""`.
+- If creating database schema in RDS, set `DB_FLAG = "RDS"`.
+
+### Step 5. Build Docker Image
+`docker build -t grocery_recommender .`
+
+### Step 6. Create Database Schema
 `docker run --mount type=bind,source="$(pwd)"/data,target=/app/data grocery_recommender src/food_db.py`
+To make sure things work out as expected, 
+- If you choose to create database schema locally, you can simply check `data/msia423_db.db`.
+- If you choose to create database schema in RDS, you can connect to SQL database by running `sh run_mysql_client.sh`
+After connecting to SQL database, enter query requests:
+`use msia423_db;`
+`select * from food;`
+
+### Step 3. Upload Raw Data to S3
+By running command below, the raw datas will be uploaded to your S3 bucket successfully.
+`docker run --env-file=mys3config.env --mount type=bind,source="$(pwd)"/data,target=/app/data grocery_recommender src/upload_s3.py`
 
 
 - [Directory structure](#directory-structure)
