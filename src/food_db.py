@@ -3,12 +3,14 @@ import sys
 import logging
 import logging.config
 
-from sqlalchemy import create_engine, Column, Integer, String, Text
+import sqlalchemy as sql
+from sqlalchemy import create_engine, Column, Integer, String, Float
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
+#sys.path.append('./config')
 import config
-from helpers import create_connection, get_session
+from helpers import create_connection, get_session, engine_string_generator
 import argparse
 
 
@@ -21,8 +23,9 @@ port = os.environ.get("MYSQL_PORT")
 database = os.environ.get("DATABASE_NAME")
 
 # logging
-logging.config.fileConfig(config.LOGGING_CONFIG)
-logger = logging.getLogger('food_db')
+logging_config = 'config/logging/local.conf'
+logging.config.fileConfig(logging_config)
+logger = logging.getLogger('msia423_db')
 
 Base = declarative_base()
 
@@ -79,7 +82,7 @@ def create_db(engine_string):
     try:
         engine = sql.create_engine(engine_string)
         Base.metadata.create_all(engine)
-        logger.info("Database: food_db.db created successfully")
+        logger.info("Database: msia423_db.db created successfully")
     except Exception as e:
         logger.error(e)
         sys.exit(1)

@@ -128,7 +128,7 @@ def engine_string_generator(db_flag, host, user, password, port, database, conn_
         Engine connection
     """
     # Engine is local by default
-    engine_string = 'sqlite:///data/food_db.db'
+    engine_string = 'sqlite:///data/msia423_db.db'
     # engine_string = config.SQLALCHEMY_DATABASE_URI
     if db_flag == 'RDS':
         # create RDS database
