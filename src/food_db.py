@@ -8,11 +8,10 @@ from sqlalchemy import create_engine, Column, Integer, String, Float
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-#sys.path.append('./config')
+# sys.path.append('./config')
 import config
 from helpers import create_connection, get_session, engine_string_generator
 import argparse
-
 
 # RDS/SQL connection set up
 conn_type = "mysql+pymysql"
@@ -28,6 +27,7 @@ logging.config.fileConfig(logging_config)
 logger = logging.getLogger('msia423_db')
 
 Base = declarative_base()
+
 
 class Food(Base):
     """
@@ -60,11 +60,16 @@ class Food(Base):
     alcohol = Column(Float(), unique=False, nullable=False)
     calories = Column(Float(), unique=False, nullable=False)
     saturated_fats = Column(Float(), unique=False, nullable=False)
-        
+
     def __repr__(self):
         food_repr = "<Food(id='%d', product_name='%s', portion='%d', portion_amount='%f', portion_name='%s', factor='%f', increment='%f', multiplier='%f', grains='%f', whole_grains='%f', vegetables='%f', orange_vegetables='%f', drkgreen_vegetables='%f', starchy_vegetables='%f', other_vegetables='%f', fruits='%f', milk='%f', meats='%f', soy='%f', drybeans_peas='%f', oils='%f', solid_fats='%f', added_sugars='%f', alcohol='%f', calories='%f', saturated_fats='%f')>"
-        return food_fact % (self.id, self.product_name, self.portion, self.portion_amount, self.portion_name, self.factor, self.increment, self.multiplier, self.grains, self.whole_grains, self.vegetables, self.orange_vegetables, self.drkgreen_vegetables, self.starchy_vegetables, self.other_vegetables, self.fruits, self.milk, self.meats, self.soy, self.drybeans_peas, self.solid_fats, self.added_sugars, self.alcohol, self.calories, self.saturated_fats)
-        
+        return food_fact % (
+        self.id, self.product_name, self.portion, self.portion_amount, self.portion_name, self.factor, self.increment,
+        self.multiplier, self.grains, self.whole_grains, self.vegetables, self.orange_vegetables,
+        self.drkgreen_vegetables, self.starchy_vegetables, self.other_vegetables, self.fruits, self.milk, self.meats,
+        self.soy, self.drybeans_peas, self.solid_fats, self.added_sugars, self.alcohol, self.calories,
+        self.saturated_fats)
+
 
 def _truncate_food(session):
     """Deletes foods if rerunning and run into unique key error."""
