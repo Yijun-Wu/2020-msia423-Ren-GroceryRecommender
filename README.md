@@ -41,16 +41,33 @@ Epic 2
 - Story 1: Connect modeling part to recommendation result display.
 - Story 2: Create user satisfactory survey.
 ### Backlog
-I1E1
+I1E1 - 2 point
 
-I2E1
+I2E1 - 2 point
 
 ### Icebox
-I2E2
+I2E2 - 8 point
 
-I3E1
+I3E1 - 4 point
 
-I3E2
+I3E2 - 3 point
+
+
+## Midterm Checkpoint
+## Running the app
+### Step 1: Download the dataset
+- Data Source: https://data.world/us-usda-gov/27830bd2-53c4-4d7b-9686-eca1a695d92a
+- File Name: food_display_table.csv  (The file is already downloaded and moved into `data/external` folder)
+Note that, we need to connect to Northwestern VPN for following steps.
+### Step 2. Add Configuration for AWS S3 bucket
+- Upload data to S3 
+`aws s3 cp food_display_table.csv s3://nw-jren-s3-1/food_display_table.csv`
+- Add credential information in `config/s3_config.py`
+Replace access key id and secret access key with your own key from AWS account. 
+### Step 3. Create database to local/S3
+`source .mysqlconfig`
+`sh run_mysql_client.sh`
+`docker run --mount type=bind,source="$(pwd)"/data,target=/app/data grocery_recommender src/food_db.py`
 
 
 - [Directory structure](#directory-structure)
@@ -113,22 +130,6 @@ I3E2
 ├── run.py                            <- Simplifies the execution of one or more of the src scripts  
 ├── requirements.txt                  <- Python package dependencies 
 ```
-
-## Midterm Checkpoint
-## Running the app
-### Step 1: Download the dataset
-- Data Source: https://data.world/us-usda-gov/27830bd2-53c4-4d7b-9686-eca1a695d92a
-- File Name: food_display_table.csv  (The file is already downloaded and moved into `data/external` folder)
-Note that, we need to connect to Northwestern VPN for following steps.
-### Step 2. Add Configuration for AWS S3 bucket
-- Upload data to S3 
-`aws s3 cp food_display_table.csv s3://nw-jren-s3-1/food_display_table.csv`
-- Add credential information in `config/s3_config.py`
-Replace access key id and secret access key with your own key from AWS account. 
-### Step 3. Create database to local/S3
-`source .mysqlconfig`
-`sh run_mysql_client.sh`
-`docker run --mount type=bind,source="$(pwd)"/data,target=/app/data grocery_recommender src/food_db.py`
 
 
 #### Create the database with a single song 
