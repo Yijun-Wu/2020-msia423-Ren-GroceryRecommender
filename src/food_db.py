@@ -86,6 +86,7 @@ def create_db(engine_string):
 
 
 if __name__ == "__main__":
+    engine_string = engine_string_generator(config.DB_FLAG, host, user, password, port, database, conn_type)
     parser = argparse.ArgumentParser(description="Create defined tables in database")
     parser.add_argument("--truncate", "-t", default=False, action="store_true",
                         help="If given, delete current records from food table before create_all "
@@ -106,4 +107,4 @@ if __name__ == "__main__":
         finally:
             session.close()
 
-    create_db(engine_string=config.SQLALCHEMY_DATABASE_URI)
+    create_db(engine_string)

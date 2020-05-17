@@ -116,7 +116,7 @@ def get_session(engine=None, engine_string=None):
     return session
     
     
-def engine_string_generator(db_flag, host, user, password, port, database, conn_type, path):
+def engine_string_generator(db_flag, host, user, password, port, database, conn_type):
     """
     Creates the path to the location where the RDS or SQLITE database will be created
     Args:
