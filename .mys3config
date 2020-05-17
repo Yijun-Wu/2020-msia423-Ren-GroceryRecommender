@@ -1,2 +1,3 @@
 export AWS_Access_Key_Id=AKIAISQGZW6EUXVD5OTA
-export AWS_Secret_Key=8tBKF0I2lUoy7BzHu3tui1iPQqnBDiCeUO383AmRs
+export AWS_Secret_Key=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
+export AWS_DEFAULT_REGION=us-east-2
