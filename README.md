@@ -125,10 +125,10 @@ Note that, we need to connect to Northwestern VPN for following steps.
 `aws s3 cp food_display_table.csv s3://nw-jren-s3-1/food_display_table.csv`
 - Add credential information in `config/s3_config.py`
 Replace access key id and secret access key with your own key from AWS account. 
-
-
-
-
+### Step 3. Create database to local/S3
+`source .mysqlconfig`
+`sh run_mysql_client.sh`
+`docker run --mount type=bind,source="$(pwd)"/data,target=/app/data grocery_recommender src/food_db.py`
 
 
 #### Create the database with a single song 
