@@ -10,7 +10,7 @@ Author: Jing Ren, QA: Aakanksha Sah
 With coronavirus impact and Stay-at-Home order, even though you can still shop for food at the grocery store while keeping social distancing, you might find some items are in short supply or hesitant to go out at the first place. Many people choose to stock up foods, but what should you buy this time around? It is important to boost immunity in order to fight virus by eating a healthy diet. This application aims to help develop a grocery list that not only meets your appetite but also satisfies your health needs.
 
 ### Mission
-To generate grocery lists, this application will first prompt users to input past purchase data from last grocery shopping, and then make recommendations based on nutritional information, regarding to the dataset containing tables of condiments from data.world [https://data.world/us-usda-gov/27830bd2-53c4-4d7b-9686-eca1a695d92a]. With more data input, the list generated will become a closer match to your taste, while guaranteeing nutrition needs. Hopefully users will find the app save their time trying to figure out what food to buy and maintain a healthy diet during the COVID-19 pandemic.
+To generate grocery lists, this application will first prompt users to input one item on their current grocery list, and then make recommendations based on market basket analysis, which is derived from instacart customer orders dataset from Kaggle [https://www.kaggle.com/c/instacart-market-basket-analysis/data], as well as nutrition information, obtained from condiments dataset from data.world [https://data.world/us-usda-gov/27830bd2-53c4-4d7b-9686-eca1a695d92a]. With more data input, the list generated will become a closer match to your taste, while guaranteeing nutrition needs. Hopefully users will find the app save their time trying to figure out what food to buy and maintain a healthy diet during the COVID-19 pandemic.
 
 ### Success criteria
 Machine Learning Criteria: The success of this application will be examined by robustness of recommendations given, since it is hard to measure in an unsupervised learning model without labels. Yet the success of recommendation system also depends mainly on its ability to capture user’s preferences, and therefore, by user-centered metrics, we can prompt rating survey where user can rate his or her satisfaction level from 0 to 5, while average ratings taken as measurement criteria.
@@ -41,16 +41,83 @@ Epic 2
 - Story 1: Connect modeling part to recommendation result display.
 - Story 2: Create user satisfactory survey.
 ### Backlog
-I1E1
+I1E1 - 2 point
 
-I2E1
+I2E1 - 2 point
 
 ### Icebox
-I2E2
+I2E2 - 8 point
 
-I3E1
+I3E1 - 4 point
 
-I3E2
+I3E2 - 3 point
+
+
+## Midterm Checkpoint
+## Running the app
+### Step 1: Download the dataset
+- Data Source: https://data.world/us-usda-gov/27830bd2-53c4-4d7b-9686-eca1a695d92a
+- File Name: food_display_table.csv 
+
+The file needs to be manually downloaded, you should scroll down webpage to locate it. 
+It is already downloaded and moved into `data/external` folder.
+Note that, we need to connect to Northwestern VPN for following steps.
+
+### Step 2. Add Configuration for AWS S3 bucket
+In order to connect to S3, you need to change credential information in `src/config.py` and `mys3config.env`.
+Replace access key id and secret access key with your own key from AWS account, as well as the name of your S3 bucket where you will store the data file. Specifically, these variables should be updated:
+
+- S3_BUCKET
+- AWS_Access_Key_Id
+- AWS_Secret_Key
+
+In addition, make sure your IP address is added in inbound rules and consistent with RDS setting, even if connected to Northwestern VPN, there might still be differences between IP addresses when you connect several times.
+
+### Step 3. Add Configuration for RDS/MYSQL database
+Run this command from root directory,
+
+`vi .mysqlconfig` 
+
+Update the following credentials which will be used to create the database:
+
+- MYSQL_USER: default is `admin` when setting up RDS instance
+- MYSQL_PASSWORD: password used to create database server
+- MYSQL_PORT: 3306 
+- DATABASE_NAME: msia423_db
+- MYSQL_HOST: RDS instance endpoint (check console)
+
+Save your file and set these environment variables in your setting by running:
+
+`source .mysqlconfig`
+
+### Step 4. Add Configuration to Determine Whether Create Database Schema Locally in SQLite or in RDS 
+Select whether to use RDS instance or local SQLite database by changing the `DB_FLAG` variable in `config.py`.
+- If creating database schema locally, set `DB_FLAG = ""`.
+- If creating database schema in RDS, set `DB_FLAG = "RDS"`.
+
+### Step 5. Build Docker Image
+
+`docker build -t grocery_recommender .`
+
+### Step 6. Create Database Schema
+
+`docker run --mount type=bind,source="$(pwd)"/data,target=/app/data grocery_recommender src/food_db.py`
+
+To make sure things work out as expected, 
+- If you choose to create database schema locally, you can simply check `data/msia423_db.db`.
+- If you choose to create database schema in RDS, you can connect to SQL database by running `sh run_mysql_client.sh`
+
+After connecting to SQL database, enter query requests:
+
+`use msia423_db;`
+
+`select * from food;`
+
+### Step 3. Upload Raw Data to S3
+By running command below, the raw datas will be uploaded to your S3 bucket successfully.
+
+`docker run --env-file=mys3config.env --mount type=bind,source="$(pwd)"/data,target=/app/data grocery_recommender src/upload_s3.py`
+
 
 - [Directory structure](#directory-structure)
 - [Running the app](#running-the-app)
@@ -113,8 +180,6 @@ I3E2
 ├── requirements.txt                  <- Python package dependencies 
 ```
 
-## Running the app
-### 1. Initialize the database 
 
 #### Create the database with a single song 
 To create the database in the location configured in `config.py` with one initial song, run: 
