@@ -228,6 +228,8 @@ def run_analysis(args):
             # list of list
             ls.append(row)
         rec_table = pd.DataFrame(ls, columns=column_names)
+        # remove bad values with duplicates
+        rec_table = rec_table[rec_table.item_name != "Macaroni and Cheese"]
         rec_table.to_csv(args.output)
         logger.info("Recommendation table generated successfully based on rules given")
     except Exception as e:

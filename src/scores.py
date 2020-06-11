@@ -91,7 +91,6 @@ def run_scores(args):
           scores: average score by each order
        """
 
-
     try:
         prior = pd.read_csv(args.input1)
         orders = pd.read_csv(args.input2)

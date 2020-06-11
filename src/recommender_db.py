@@ -106,7 +106,7 @@ def add_rows(input_path, session):
     """
     # import data from csv
     logger.info("read in data")
-    df = pd.read_csv(input_path)
+    df = pd.read_csv(input_path, encoding = 'unicode_escape')
     df = df.drop(['Unnamed: 0'], axis=1)
 
     rows = []
@@ -138,7 +138,7 @@ def create_rec_db(args):
     engine_string = create_engine_string(SQLALCHEMY_DATABASE_URI, args.rds)
 
     # If "truncate" is given as an argument (i.e. python models.py --truncate), then empty the recommendation table)
-    if args.truncate is True:
+    if args.truncate == "True":
         session = get_session(engine_string)
         try:
             logger.info("Attempting to truncate Recommendation table.")
