@@ -81,7 +81,7 @@ def test_scores(test_order, train_rules_final):
     return scores
 
 
-def run_scores(orders, prior, products):
+def run_scores(args):
     """ Generate test score of recommendations generated for test data
       Input:
           orders: orders dataframe
@@ -90,7 +90,14 @@ def run_scores(orders, prior, products):
        Returns:
           scores: average score by each order
        """
+
+
     try:
+        prior = pd.read_csv(args.input1)
+        orders = pd.read_csv(args.input2)
+        products = pd.read_csv(args.input3)
+        logger.info("Datasets read in successfully")
+
         # Do a 80:20 train/test split on data
         train_data = prior[:25947591]
         test_data = prior[25947591:]
@@ -101,14 +108,23 @@ def run_scores(orders, prior, products):
         products = products.rename(columns={'product_id': 'item_id', 'product_name': 'item_name'})
         train_rules_final = merge_item_name(rules, products).sort_values('lift', ascending=False)
         products = products.rename(columns={'item_id': 'product_id'})
+        logger.info("Training rules generated")
+
         # Prior orders with user_id, product_id, product_name
         test_order = pd.merge(test_data, products, how='left', on='product_id')
         test_order = pd.merge(test_order, orders, how='left', on='order_id')
         # With over 1 million lines, it takes longer than an hour for me to run the test score
         # So as to save your running time, we only take 100000 records at this moment to check test score
-        # But we can see the trend for test score stabilizes around 0.3 ultimately
+        # But we can see the trend for test score stabilizes around 0.4 ultimately
         test_order = test_order[:100000]
+        logger.info("Test data ready and calculating scores now (5~10 min)...")
+
         scores = np.mean(test_scores(test_order, train_rules_final))
+        with open(args.output, 'w') as f:
+            f.write("Test score is: ")
+            f.write(str(scores))
+        logger.info("Test score saved to file: " + args.output)
+
     except Exception as e:
         logger.warning('Could not generate scores for test dataset due to invalid input')
         raise Exception('Invalid input')

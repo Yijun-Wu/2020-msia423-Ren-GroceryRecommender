@@ -146,7 +146,7 @@ def association_rules(items, min_support):
             items: raw data of orders
             min_support: minimum confidence constraint that's applied to frequent itemsets in order to form rules
         Returns:
-            filtered pairs rules with lift in descending order
+            filtered_pairs: rules table with lift for item pairs in descending order
     """
     try:
         items, filtered_orders = update_filter_support(items, min_support)
@@ -155,18 +155,18 @@ def association_rules(items, min_support):
         stats = freq(items).to_frame("freq")
         stats = support(items, stats)
 
+        logger.info("Generating items pairs now (roughly 10 min)... ")
         # Get item pairs generator
         pairs_generated = generate_pairs(items)
         # Calculate item pair frequency and support ('Counter' keeps track of how many times equivalent values for pairs are added)
         item_pairs = pd.Series(Counter(pairs_generated)).rename("freq").to_frame("freq_AB")
         item_pairs['support_AB'] = item_pairs['freq_AB'] / len(filtered_orders) * 100
-
-        print("Item pairs: {:31d}".format(len(item_pairs)))
+        logger.info("Current items pairs: " + str(len(item_pairs)))
 
         # Filter out item pairs below min support
         filtered_pairs = item_pairs[item_pairs['support_AB'] >= min_support]
 
-        print("Item pairs with support >= {}: {:10d}\n".format(min_support, len(filtered_pairs)))
+        logger.info("Item pairs with support >= 0.01: " + str(len(filtered_pairs)))
 
         # Construct association rules table and calculate confidence and lift
         filtered_pairs = filtered_pairs.reset_index().rename(columns={'level_0': 'itemA', 'level_1': 'itemB'})
@@ -176,16 +176,21 @@ def association_rules(items, min_support):
         filtered_pairs['confidence_BtoA'] = filtered_pairs['support_AB'] / filtered_pairs['support_B']
         filtered_pairs['lift'] = filtered_pairs['support_AB'] / (
                     filtered_pairs['support_A'] * filtered_pairs['support_B'])
+        logger.info("Lift variable created for item pairs successfully")
+
     except Exception as e:
         logger.error(e)
         raise Exception('Invalid input')
 
     # Return association rules sorted by lift in descending order
     # Larger lift implies increase in the ratio of sale of B when A is sold
-    return filtered_pairs.sort_values('lift', ascending=False)
+    filtered_pairs = filtered_pairs.sort_values('lift', ascending=False)
+    logger.info("Rules table created with lift for item pairs in descending order")
+
+    return filtered_pairs
 
 
-def run_analysis(orders, products):
+def run_analysis(args):
     """ Create top 5 recommendations table with generated association rules
        Inputs:
            orders: orders dataframe
@@ -193,7 +198,12 @@ def run_analysis(orders, products):
        Returns:
            rec_table: table of recommendations for each item
     """
+
     try:
+        orders = pd.read_csv(args.input1)
+        products = pd.read_csv(args.input2)
+        logger.info("Datasets read in successfully")
+
         # Convert from DataFrame to a Series, with order_id as index and item_id as value
         orders = orders.set_index('order_id')['product_id'].rename('item_id')
         # generate association rules
@@ -218,6 +228,8 @@ def run_analysis(orders, products):
             # list of list
             ls.append(row)
         rec_table = pd.DataFrame(ls, columns=column_names)
+        rec_table.to_csv(args.output)
+        logger.info("Recommendation table generated successfully based on rules given")
     except Exception as e:
         logger.error(e)
         raise Exception('Invalid input')

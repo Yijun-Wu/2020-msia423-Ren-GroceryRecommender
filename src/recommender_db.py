@@ -7,9 +7,11 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, String
 import pandas as pd
 import argparse
+import yaml
 
 logger = logging.getLogger(__name__)
 Base = declarative_base()
+
 
 class Recommendation(Base):
     """
@@ -34,9 +36,37 @@ class Recommendation(Base):
 def _truncate_rec(session):
     """Deletes recommendations if rerunning and run into unique key error."""
     session.execute('''DELETE FROM Recommendation''')
+    session.execute('''DROP TABLE Recommendation''')
 
 
-def create_db(RDS_FLAG):
+def create_engine_string(SQLALCHEMY_DATABASE_URI, RDS_FLAG):
+    """ Creates the path to the RDS or local SQLITE database
+        Inputs:
+            SQLALCHEMY_DATABASE_URI: database location path
+            RDS_FLAG: whether user chooses to create RDS database or not
+        Returns:
+            engine string
+    """
+    if (SQLALCHEMY_DATABASE_URI is None) or (SQLALCHEMY_DATABASE_URI is ""):
+        # RDS connection set up
+        conn_type = "mysql+pymysql"
+        user = os.environ.get("MYSQL_USER")
+        password = os.environ.get("MYSQL_PASSWORD")
+        host = os.environ.get("MYSQL_HOST")
+        port = os.environ.get("MYSQL_PORT")
+        database = os.environ.get("DATABASE_NAME")
+        if RDS_FLAG is True:
+            engine_string = "{}://{}:{}@{}:{}/{}".format(conn_type, user, password, host, port, database)
+        else:
+            engine_string = 'sqlite:////data/Recommendation.db'
+    else:
+        engine_string = os.environ.get("SQLALCHEMY_DATABASE_URI")
+
+    return engine_string
+
+
+
+def create_db(engine_string):
     """Creates a database with the data models inherited from `Base` (Recommendation).
     Args:
         engine_string (`str`, default None): String defining SQLAlchemy connection URI in the form of
@@ -44,46 +74,39 @@ def create_db(RDS_FLAG):
     Returns:
         None or Exception error if there's invalid value
     """
-    # RDS/SQL connection set up
-    conn_type = "mysql+pymysql"
-    user = os.environ.get("MYSQL_USER")
-    password = os.environ.get("MYSQL_PASSWORD")
-    host = os.environ.get("MYSQL_HOST")
-    port = os.environ.get("MYSQL_PORT")
-    database = os.environ.get("DATABASE_NAME")
-
-    # logging
-    logging_config = 'config/logging/local.conf'
-    logging.config.fileConfig(logging_config)
-    logger = logging.getLogger('create_rds_DB')
-
-    # connect to rds if true, otherwise connect to local database
-    if RDS_FLAG is True:
-        engine_string = "{}://{}:{}@{}:{}/{}".format(conn_type, user, password, host, port, database)
-    else:
-        engine_string = 'sqlite:////data/Recommendation.db'
-
     try:
         engine = sql.create_engine(engine_string)
         Base.metadata.create_all(engine)
-        Session = sessionmaker(bind=engine)
-        session = Session()
-        add_rows()
-        logger.info("Database created successfully with all rows added")
+        logger.info("Database created.")
     except Exception as e:
-        logger.error(e)
+        logger.error("Please enter correct credentials to access database.")
         sys.exit(1)
 
-def add_rows():
-# def add_rows(session, item_name, rec1, rec2, rec3, rec4, rec5):
-    """Insert data into a local RDS instance
+
+def get_session(engine_string):
+    """Get session from SQLAlchemy connection string
     Args:
-        None
+        engine_string: SQLAlchemy connection string
+    Returns:
+        SQLAlchemy session
+    """
+    engine = sql.create_engine(engine_string)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    return session
+
+
+def add_rows(input_path, session):
+    """Insert data records into created RDS database
+    Args:
+        input_path: local recommendation table to be written into database
+        session: get session from SQLAlchemy connection string
     Returns:
         None
     """
     # import data from csv
-    df = pd.read_csv('data/external/recommendations.csv')
+    logger.info("read in data")
+    df = pd.read_csv(input_path)
     df = df.drop(['Unnamed: 0'], axis=1)
 
     rows = []
@@ -99,20 +122,24 @@ def add_rows():
         rows.append(each_row)
     session.add_all(rows)
     session.commit()
+    logger.info("Session commit complete")
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Create defined tables in database")
-    parser.add_argument("--truncate", "-t", default=False, action="store_true",
-                        help="If given, delete current records from food table before create_all "
-                             "so that table can be recreated without unique id issues ")
-    args = parser.parse_args()
+def create_rec_db(args):
+    """ Create database in RDS or local with recommendation table as input records
+    Args:
+        args that contain input file path, truncate flag, rds flag
+    Returns:
+        None
+    """
+
+    # Get SQLALCHEMY_DATABASE_URI from environment and generate engine string
+    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
+    engine_string = create_engine_string(SQLALCHEMY_DATABASE_URI, args.rds)
 
     # If "truncate" is given as an argument (i.e. python models.py --truncate), then empty the recommendation table)
-    if args.truncate:
-        engine = sql.create_engine(engine_string)
-        Session = sessionmaker(bind=engine)
-        session = Session()
+    if args.truncate is True:
+        session = get_session(engine_string)
         try:
             logger.info("Attempting to truncate Recommendation table.")
             _truncate_rec(session)
@@ -126,15 +153,10 @@ if __name__ == "__main__":
 
     # create database
     create_db(engine_string)
-
     try:
-        # add rows to create database
-        engine = sql.create_engine(engine_string)
-        Session = sessionmaker(bind=engine)
-        session = Session()
-        add_rows()
-        # add_rows(session, 'a', '1', '2', '3', '4', '5')
-
+        # write records into table
+        session = get_session(engine_string)
+        add_rows(args.input, session)
         logger.info("Database created successfully with all rows added")
     except Exception as e:
         logger.error(e)
