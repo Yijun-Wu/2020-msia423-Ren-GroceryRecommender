@@ -241,11 +241,11 @@ docker run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e SQLALCHEMY_DATABASE_
 
 Unit test is run for `src/market_basket_analysis.py` and `src/scores.py`.
 
-Other functions are for download / upload /database creation purpose, so we won't perform tests in this case.
+Other functions that interact with S3, a database or API, or pull together all the functionality for a step, we won't perform tests in these cases.
 
 ```
 docker build -t grocery_recommender .
-docker run grocery_recommender pytest
+docker run grocery_recommender run_test.sh
 ```
 
 
