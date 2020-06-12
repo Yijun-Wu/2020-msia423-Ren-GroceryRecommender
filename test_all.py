@@ -5,7 +5,7 @@ import logging
 import pandas as pd
 import numpy as np
 from src.market_basket_analysis import freq, support, generate_pairs, merge_item_stats, merge_item_name, association_rules, update_filter_support
-from src.scores import get_recommendation, test_scores
+from src.scores import get_recommendation, get_scores
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -234,9 +234,9 @@ def test_get_recommendation_unhappy():
         output = get_recommendation(test_cut, "Garlic Powder")
 
 
-# happy test for function 'test_scores'
-def test_test_scores_happy():
-    """ Happy test for function 'run_scores'
+# happy test for function 'get_scores'
+def test_get_scores_happy():
+    """ Happy test for function 'get_scores'
         Return value of the function should be equal to manually calculated expected output
         Function: Calculate the test score of recommendations generated for test data
         Error message raised due to limited dataset
@@ -254,16 +254,16 @@ def test_test_scores_happy():
     # Prior orders with user_id, product_id, product_name
     test_sample = pd.merge(test_data, products_df, how='left', on='product_id')
     test_order = pd.merge(test_sample, orders, how='left', on='order_id')
-    output = np.nanmean(test_scores(test_order, train_rules_final))
+    output = np.nanmean(get_scores(test_order, train_rules_final))
 
     assert expected_output == output
 
 
-# unhappy test for function 'test_scores'
-def test_test_scores_unhappy():
-    """ Unhappy test for function 'run_scores'
+# unhappy test for function 'get_scores'
+def test_get_scores_unhappy():
+    """ Unhappy test for function 'get_scores'
         The input value is invalid so it should raise an exception error
     """
     expected_output = None
     with pytest.raises(Exception):
-        output = test_scores(test_cut, "Garlic Powder")
+        output = get_scores(test_cut, "Garlic Powder")
