@@ -100,8 +100,8 @@ def run_scores(args):
         # Do a 80:20 train/test split on data
         train_data = prior.head(int(len(prior)*(80/100)))
         test_data = prior[len(train_data):]
-        logger.info("Size of training data: "+ len(train_data))
-        logger.info("Size of testing data: "+ len(test_data))
+        logger.info("Size of training data: "+ str(len(train_data))
+        logger.info("Size of testing data: "+ str(len(test_data))
 
         # Convert from DataFrame to a Series, with order_id as index and item_id as value
         train_data = train_data.set_index('order_id')['product_id'].rename('item_id')
