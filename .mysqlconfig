@@ -1,0 +1,5 @@
+export MYSQL_USER=
+export MYSQL_PASSWORD=
+export MYSQL_PORT=
+export DATABASE_NAME=
+export MYSQL_HOST= 

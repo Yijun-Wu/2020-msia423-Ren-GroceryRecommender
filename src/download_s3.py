@@ -39,6 +39,3 @@ def download_s3(args):
     except botocore.exceptions.NoCredentialsError as e:
         logger.error("AWS S3 credentials Invalid")
         sys.exit(1)
-
-
-

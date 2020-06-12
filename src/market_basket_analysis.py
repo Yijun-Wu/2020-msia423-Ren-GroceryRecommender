@@ -91,7 +91,6 @@ def merge_item_name(ac_rules, item_name):
         ac_rules: dataframe with associate rules of pairs
         item_name: dataframe with item id associated to item name
     Returns:
-
     """
     try:
         columns = ['item_A', 'item_B', 'freq_AB', 'support_AB', 'freq_A', 'support_A', 'freq_B', 'support_B',

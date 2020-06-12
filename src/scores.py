@@ -128,4 +128,3 @@ def run_scores(args):
         logger.warning('Could not generate scores for test dataset due to invalid input')
         raise Exception('Invalid input')
     return scores
-

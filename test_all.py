@@ -242,4 +242,3 @@ def test_run_scores_happy():
     output = np.mean(test_scores(test_order, train_rules_final))
 
     assert expected_output == output
-
