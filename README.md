@@ -54,73 +54,111 @@ I3E2 - 3 point
 ## Midterm Checkpoint
 ## Running the app
 ### Step 1: Download the dataset
+
 - Data Source: https://www.instacart.com/datasets/grocery-shopping-2017
 - File Name: order_products__prior.csv, orders.csv, products.csv
 
 The file needs to be manually downloaded, you need to first download `instacart_online_grocery_shopping_2017_05_01.tar.gz`, then unzip the compressed file folder to locate the files. 
 It is already downloaded and moved into `data/external` folder.
-Note that, we need to connect to Northwestern VPN for following steps.
+**Note that, we need to connect to Northwestern VPN for following steps.**
 
 
 ### Step 2. Upload raw dataset into or download it from S3 bucket
 
 *1. Add Configuration for AWS S3 bucket*
 
-In order to connect to S3, you need to change credential information.
-In `src/config.py`, add the name of your S3 bucket where you will store the data file. 
+Replace access key id and secret access key with your own key from AWS account, by exporting environmental variables beforehand running these commands in terminal:
 
-- S3_BUCKET
+```
+export AWS_ACCESS_KEY_ID=<Your Access Key ID>
 
-In `mys3config.env`, replace access key id and secret access key with your own key from AWS account, as well as default region.
+export AWS_SECRET_ACCESS_KEY=<Your Secret Key ID>
+```
 
-- AWS_ACCESS_KEY_ID
-- AWS_SECRET_ACCESS_KEY
-- AWS_DEFAULT_REGION
+Or make these changes in `.mys3config` and run command `source .mys3config`. Both work in the same way.
 
 In addition, make sure your IP address is added in inbound rules and consistent with RDS setting, even if connected to Northwestern VPN, there might still be differences between IP addresses when you connect several times.
 
-*2. Build Docker Image*
 
-`docker build -t grocery_recommender .`
+*2a. Upload Raw Data to S3*
 
-*3a. Upload Raw Data to S3*
+Here's a list of args in commands,
+
+- `--s3bucket`: add the name of your S3 bucket where you will store the data file. 
+- `--input1` / `--output1`: path to prior orders dataframe.
+- `--input2` / `--output2`: path to orders dataframe.
+- `--input3` / `--output3`: path to products dataframe.
 
 By running command below, the raw data will be uploaded to your S3 bucket successfully.
 
-`python3 run.py upload --config=config/recommendation.yaml --s3bucket=nw-jren-s3-1 --input1=data/external/order_products__prior.csv --input2=data/external/orders.csv --input3=data/external/products.csv`
+```
+python3 run.py upload --config=config/recommendation.yaml --s3bucket=nw-jren-s3-1 --input1=data/external/order_products__prior.csv --input2=data/external/orders.csv --input3=data/external/products.csv
+```
 
-*3b. Download Raw Data to S3*
+
+*2b. Download Raw Data to S3*
 
 By running command below, the raw data will be downloaded from your S3 bucket successfully.
 
-`python3 run.py acquire --config=config/recommendation.yaml --s3bucket=nw-jren-s3-1 --output1=data/external/order_products__prior.csv --output2=data/external/orders.csv --output3=data/external/products.csv`
+```
+python3 run.py acquire --config=config/recommendation.yaml --s3bucket=nw-jren-s3-1 --output1=data/external/order_products__prior.csv --output2=data/external/orders.csv --output3=data/external/products.csv
+```
 
-Downloaded data will be stored into `data/external/order_products__prior.csv`, `data/external/orders.csv `, and `data/external/products.csv`.
+Downloaded data will be stored into `data/external/order_products__prior.csv`, `data/external/orders.csv `, and `data/external/products.csv` correspondingly, or user specified path.
 
 
 ### Step 3. Perform market basket analysis and generate recommendations on all data
 
-`python3 run.py generate_rules --input1=data/external/order_products__prior.csv --input2=data/external/products.csv --output=data/external/recommendations.csv`
+Here's a list of args in commands,
 
-Generated recommendation table will be stored into `data/external/recommendations.csv`.
+- `--input1`: path to prior orders dataframe.
+- `--input2`: path to products dataframe.
+- `--output`: path to store generated recommendation table.
+
+```
+python3 run.py generate_rules --input1=data/external/order_products__prior.csv --input2=data/external/products.csv --output=data/external/recommendations.csv
+```
+
+Generated recommendation table will be stored into `data/external/recommendations.csv` or user specified path.
 
 
 ### Step 4. Evaluate scores of recommendation model on test data (after generating rules from train data)
 
-`python3 run.py get_scores --input1=data/external/order_products__prior.csv --input2=data/external/orders.csv --input3=data/external/products.csv --output=data/external/scores.txt`
+Here's a list of args in commands,
 
-Generated test scores will be stored into `data/external/scores.txt`.
-With over 3 million lines, it could take a few hours to run the test score, so as to save your running time, we only take a sample of records at this moment to check test score.
-This score roughly stabilizes around 0.4 with whole dataset, before cutting it down due to limited RAM memory.
+- `--input1`: path to prior orders dataframe.
+- `--input2`: path to orders dataframe.
+- `--input3`: path to products dataframe.
+- `--output`: path to store generated scores (txt file).
+
+```
+python3 run.py get_scores --input1=data/external/order_products__prior.csv --input2=data/external/orders.csv --input3=data/external/products.csv --output=data/external/scores.txt
+```
+
+Generated test scores will be stored into `data/external/scores.txt`, or user specified path.
+With over 3 million lines, it could take hours to run the test score, so as to save your running time, we only take a sample of records at this moment to check test score.
+This score roughly stabilizes around 0.4 with whole data, before cutting it down due to limited RAM memory.
 
 
 ### Step 5. Write association rules' recommendations into RDS database
 
 *1. Add Configuration for creating database schema in RDS*
 
-Run this command from root directory,
+Export environmental variables beforehand by running these commands in terminal:
 
-`vi .mysqlconfig` 
+```
+export MYSQL_USER=<enter your RDS host here>
+export MYSQL_PASSWORD=<enter your RDS password here>
+export MYSQL_HOST=<enter your RDS instance endpoint here>
+export MYSQL_PORT=<enter your port here>
+export DATABASE_NAME=<enter your database name here> 
+```
+
+Another option would be edit the file `.mysqlconfig` in root directory. Run this command from root directory,
+
+```
+vi .mysqlconfig
+``` 
 
 Update the following credentials which will be used to create the database:
 
@@ -132,16 +170,25 @@ Update the following credentials which will be used to create the database:
 
 Save your file and set these environment variables in your setting by running:
 
-`echo 'source .mysqlconfig' >> ~/.bashrc`
-`source ~/.bashrc`
+```
+echo 'source .mysqlconfig' >> ~/.bashrc
+source ~/.bashrc
+```
 
 
 *2. Writing records into table in RDS database*
 
+Here's a list of args in commands,
 
-`python3 run.py store_RDS --input=data/external/recommendations.csv --truncate=True --rds=True`
+- `--input`: path to recommendation table generated.
+- `--truncate`: indicates whether empty the recommendation table or not.
+- `--rds`: indicates whether table is stored into local SQLite or RDS database.
 
-Change to `--rds=False` if you want the table stored in to local SQLite database.
+```
+python3 run.py store_RDS --input=data/external/recommendations.csv --truncate=True --rds=True
+```
+
+Change to `--rds=False` if you want the table stored in local SQLite database.
 Change to `--truncate=False` if you don't need to delete table from database. It's set to True as default, so as to avoid issue of duplicate entry for primary key in sql database.
 
 
@@ -149,15 +196,16 @@ Change to `--truncate=False` if you don't need to delete table from database. It
 
 Firstly, connect to RDS database,
 
-`sh run_mysql_client.sh`
+```
+sh run_mysql_client.sh
+```
 
-Then, select the database we're using,
+Then, select the database we're using, and display content of our current recommendation table,
 
-`use msia423_db;`
-
-Now to display content of our current recommendation table,
-
-`select * from Recommendation;`
+```
+use msia423_db;
+select * from Recommendation;
+```
 
 
 *3b. Checking content in table created locally*
@@ -165,49 +213,44 @@ Now to display content of our current recommendation table,
 If you choose to create database schema locally, you can simply check `data/msia423_db.db`.
 
 
-
 ### Step 6. Running the entire model pipeline with docker command
 
 Firstly, we need to export environmental variables into our environment by using these commands in terminal,
 
+```
+export AWS_ACCESS_KEY_ID=<Your Access Key ID>
+export AWS_SECRET_ACCESS_KEY=<Your Secret Key ID>
+export SQLALCHEMY_DATABASE_URI=<Your SQLALCHEMY DATABASE URI>
+```
 
-`export AWS_ACCESS_KEY_ID=<Your Access Key ID>`
+Then, running run-pipeline.sh by following lines (build docker image first):
 
-
-`export AWS_SECRET_ACCESS_KEY=<Your Secret Key ID>`
-
-
-`export SQLALCHEMY_DATABASE_URI=<Your SQLALCHEMY DATABASE URI>`
-
-
-Then, running run-pipeline.sh by following lines:
-
-
-`docker build -t grocery_recommender .`
-
-`docker run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e SQLALCHEMY_DATABASE_URI --mount type=bind,source="$(pwd)/data",target=/app/data/ grocery_recommender run-pipeline.sh`
+```
+docker build -t grocery_recommender .
+docker run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e SQLALCHEMY_DATABASE_URI --mount type=bind,source="$(pwd)/data",target=/app/data/ grocery_recommender run-pipeline.sh
+```
 
 
-
-### Step 7. Running unit tests for each function
+### Step 7. Running unit tests
 
 Unit test is run for `src/market_basket_analysis.py` and `src/scores.py`.
 
-Other functions are for download/upload/database creation purpose, so we won't perform tests in this case.
+Other functions are for download / upload /database creation purpose, so we won't perform tests in this case.
 
-`docker build -t grocery_recommender .`
-
-`docker run grocery_recommender pytest`
-
+```
+docker build -t grocery_recommender .
+docker run grocery_recommender pytest
+```
 
 
 ### Step 8. Running the Flask app
 
-To run the Flask app, run: 
+To run the Flask app (first build docker image), run: 
 
-`docker build -f app/Dockerfile -t grocery_recommender .`
-
-`docker run -e SQLALCHEMY_DATABASE_URI --mount type=bind,source="$(pwd)",target=/app -p 5000:5000 grocery_recommender python3 app.py`
+```
+docker build -f app/Dockerfile -t grocery_recommender .
+docker run -e SQLALCHEMY_DATABASE_URI --mount type=bind,source="$(pwd)",target=/app -p 5000:5000 grocery_recommender python3 app.py
+```
 
 You should now be able to access the app at http://0.0.0.0:5000/ in your browser.
 
