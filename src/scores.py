@@ -35,7 +35,7 @@ def get_recommendation(train_rules_final, name):
     return rec_table, top_n
 
 
-def test_scores(test_order, train_rules_final):
+def get_scores(test_order, train_rules_final):
     """ Calculate the test score of recommendations generated for test data
        Give 5 recommendations for each item in order, and compare if there's a match with the following 4 items, so on and so forth.
        If there's a match, add 1 to score, then divided by total number of recommendations made to current order,
@@ -117,7 +117,7 @@ def run_scores(args):
 
         logger.info("Test data ready and calculating scores now ...")
 
-        scores = np.nanmean(test_scores(test_order, train_rules_final))
+        scores = np.nanmean(get_scores(test_order, train_rules_final))
         logger.info("Score from test data is: "+ str(scores))
 
         with open(args.output, 'w') as f:
