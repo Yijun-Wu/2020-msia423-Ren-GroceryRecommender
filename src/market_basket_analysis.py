@@ -154,7 +154,7 @@ def association_rules(items, min_support):
         stats = freq(items).to_frame("freq")
         stats = support(items, stats)
 
-        logger.info("Generating items pairs now (roughly 10 min)... ")
+        logger.info("Generating items pairs now ... ")
         # Get item pairs generator
         pairs_generated = generate_pairs(items)
         # Calculate item pair frequency and support ('Counter' keeps track of how many times equivalent values for pairs are added)

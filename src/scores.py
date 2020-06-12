@@ -100,8 +100,8 @@ def run_scores(args):
         # Do a 80:20 train/test split on data
         train_data = prior.head(int(len(prior)*(80/100)))
         test_data = prior[len(train_data):]
-        logger.info(len(train_data))
-        logger.info(len(test_data))
+        logger.info("Size of training data: "+ len(train_data))
+        logger.info("Size of testing data: "+ len(test_data))
 
         # Convert from DataFrame to a Series, with order_id as index and item_id as value
         train_data = train_data.set_index('order_id')['product_id'].rename('item_id')
@@ -115,19 +115,15 @@ def run_scores(args):
         # Prior orders with user_id, product_id, product_name
         test_order = pd.merge(test_data, products, how='left', on='product_id')
         test_order = pd.merge(test_order, orders, how='left', on='order_id')
-        # With over 1 million lines, it takes longer than an hour for me to run the test score
-        # So as to save your running time, we only take 100000 records at this moment to check test score
-        # But we can see the trend for test score stabilizes around 0.4 ultimately
 
-        logger.info("Test data ready and calculating scores now (5~10 min)...")
+        logger.info("Test data ready and calculating scores now ...")
 
         scores = np.nanmean(test_scores(test_order, train_rules_final))
-        logger.info(scores)
+        logger.info("Score from test data is: "+ str(scores))
 
         with open(args.output, 'w') as f:
             f.write("Test score is: ")
             f.write(str(scores))
-        logger.info(scores)
         logger.info("Test score saved to file: " + args.output)
 
     except Exception as e:
