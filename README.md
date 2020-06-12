@@ -61,8 +61,10 @@ I3E2 - 3 point
 - Data Source: https://www.instacart.com/datasets/grocery-shopping-2017
 - File Name: order_products__prior.csv, orders.csv, products.csv
 
-The file needs to be manually downloaded, you need to first download `instacart_online_grocery_shopping_2017_05_01.tar.gz`, then unzip the compressed file folder to locate the files. 
+The file needs to be manually downloaded, you need to first download 
+`instacart_online_grocery_shopping_2017_05_01.tar.gz`, then unzip the compressed file folder to locate the files. 
 It is already downloaded and moved into `data/external` folder.
+
 **Note that, we need to connect to Northwestern VPN for following steps.**
 
 
