@@ -2,5 +2,7 @@ download_s3:
   FILE_NAME1: order_products__prior.csv
   FILE_NAME2: orders.csv
   FILE_NAME3: products.csv
-
-
+upload_to_s3:
+  FILE_NAME1: order_products__prior.csv
+  FILE_NAME2: orders.csv
+  FILE_NAME3: products.csv

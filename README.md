@@ -73,8 +73,8 @@ In `src/config.py`, add the name of your S3 bucket where you will store the data
 
 In `mys3config.env`, replace access key id and secret access key with your own key from AWS account, as well as default region.
 
-- AWS_Access_Key_Id
-- AWS_Secret_Key
+- AWS_ACCESS_KEY_ID
+- AWS_SECRET_ACCESS_KEY
 - AWS_DEFAULT_REGION
 
 In addition, make sure your IP address is added in inbound rules and consistent with RDS setting, even if connected to Northwestern VPN, there might still be differences between IP addresses when you connect several times.
@@ -87,7 +87,7 @@ In addition, make sure your IP address is added in inbound rules and consistent 
 
 By running command below, the raw data will be uploaded to your S3 bucket successfully.
 
-`docker run --env-file=mys3config.env --mount type=bind,source="$(pwd)"/data,target=/app/data grocery_recommender src/upload_s3.py`
+`python3 run.py upload --config=config/recommendation.yaml --s3bucket=nw-jren-s3-1 --input1=data/external/order_products__prior.csv --input2=data/external/orders.csv --input3=data/external/products.csv`
 
 *3b. Download Raw Data to S3*
 
@@ -170,10 +170,10 @@ If you choose to create database schema locally, you can simply check `data/msia
 Firstly, we need to export environmental variables into our environment by using these commands in terminal,
 
 
-`export AWS_Access_Key_Id=<Your Access Key ID>`
+`export AWS_ACCESS_KEY_ID=<Your Access Key ID>`
 
 
-`export AWS_Secret_Key=<Your Secret Key ID>`
+`export AWS_SECRET_ACCESS_KEY=<Your Secret Key ID>`
 
 
 `export SQLALCHEMY_DATABASE_URI=<Your SQLALCHEMY DATABASE URI>`

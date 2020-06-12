@@ -8,6 +8,7 @@ import src.download_s3 as d3
 import src.market_basket_analysis as mba
 import src.scores as sc
 import src.recommender_db as db
+import src.upload_s3 as u3
 
 logging.basicConfig(format='%(name)-12s %(levelname)-8s %(message)s', level=logging.DEBUG)
 logger = logging.getLogger('run-reproducibility')
@@ -22,6 +23,15 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Acquire, generate rules, test scores, and store to RDS from orders data")
     subparsers = parser.add_subparsers()
+
+    # Upload data to S3 bucket
+    sb_dataset = subparsers.add_parser("upload", description="upload data to S3")
+    sb_dataset.add_argument('--config', help='path to yaml file with configurations')
+    sb_dataset.add_argument('--s3bucket', help='S3 bucket name')
+    sb_dataset.add_argument('--output1', default=None, help='prior orders data')
+    sb_dataset.add_argument('--output2', default=None, help='orders data')
+    sb_dataset.add_argument('--output3', default=None, help='products data')
+    sb_dataset.set_defaults(func=u3.upload_to_s3)
 
     # Acquire data from S3 bucket
     sb_dataset = subparsers.add_parser("acquire", description="download data from S3")
