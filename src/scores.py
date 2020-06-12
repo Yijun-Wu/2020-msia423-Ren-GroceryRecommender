@@ -111,7 +111,6 @@ def run_scores(args):
         products = products.rename(columns={'item_id': 'product_id'})
         logger.info("Training rules generated")
 
-        logger.info(train_rules_final.head())
         # Prior orders with user_id, product_id, product_name
         test_order = pd.merge(test_data, products, how='left', on='product_id')
         test_order = pd.merge(test_order, orders, how='left', on='order_id')
