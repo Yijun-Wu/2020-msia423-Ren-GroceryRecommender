@@ -1,43 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <link href="static/basic.css" rel="stylesheet">
-</head>
+<html>
+<h1>Grocery Recommender</h1>
 
-<body>
-    <h3>
-         <a href = "{{ url_for('index') }}">Penny Lane Music Recommender</a>
-    </h3>
+<h2>Basket</h2>
 
-    <hr/>
-    <table>
-         <thead>
-            <tr>
-               <th>Title</th>
-               <th>Artist</th>
-               <th>Album</th>
-            </tr>
-         </thead>
+<ul>
+{% for item in basket %}
+    <li>{{ item }}</li>
+{% endfor %}
+</ul>
 
-         <tbody>
-            {% for track in tracks %}
-               <tr>
-                   <td>{{ track.title }}</td>
-                   <td>{{ track.artist }}</td>
-                   <td>{{ track.album }}</td>
-               </tr>
-            {% endfor %}
-         </tbody>
-      </table>
-      <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
-      <dl>
-        <input type=text size=15 name=title placeholder="Title">
-        <input type=text size=15 name=artist placeholder="Artist">
-        <input type=text size=15 name=album placeholder="Album">
-        <input type=submit value=Add>
-      </dl>
-    </form>
+<form method="post" action="/reset-basket/">
+    <button type="submit">Reset basket</button>
+</form>
 
-</body>
+<h2>Recommendations</h2>
+
+<form action="{{ url_for('add_thing') }}" method="post">
+    <ul>
+    {% for item in recommendations %}
+        <li>
+            <input type="checkbox" id="item-{{ item }}" name="items" value="{{ item }}" />
+            <label>{{ item }}</label>
+        </li>
+    {% endfor %}
+    </ul>
+    <button type="submit">Add to basket</button>
+</form>
+
+
+<h2>What's your pick?</h2>
+
+<form action="{{ url_for('add_thing') }}" method="post">
+    <input type="text" name="items">
+    <button type="submit">Add to basket</button>
+</form>
 </html>
