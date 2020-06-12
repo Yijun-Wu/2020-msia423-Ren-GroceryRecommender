@@ -58,7 +58,7 @@ def create_engine_string(SQLALCHEMY_DATABASE_URI, RDS_FLAG):
         if RDS_FLAG is True:
             engine_string = "{}://{}:{}@{}:{}/{}".format(conn_type, user, password, host, port, database)
         else:
-            engine_string = 'sqlite:////data/Recommendation.db'
+            engine_string = 'sqlite:///data/msia423_db.db'
     else:
         engine_string = os.environ.get("SQLALCHEMY_DATABASE_URI")
 
