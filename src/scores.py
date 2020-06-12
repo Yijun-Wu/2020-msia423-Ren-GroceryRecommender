@@ -98,8 +98,10 @@ def run_scores(args):
         logger.info("Datasets read in successfully")
 
         # Do a 80:20 train/test split on data
-        train_data = prior.head(int(len(orders)*(80/100)))
+        train_data = prior.head(int(len(prior)*(80/100)))
         test_data = prior[len(train_data):]
+        logger.info(len(train_data))
+        logger.info(len(test_data))
 
         # Convert from DataFrame to a Series, with order_id as index and item_id as value
         train_data = train_data.set_index('order_id')['product_id'].rename('item_id')
@@ -109,6 +111,7 @@ def run_scores(args):
         products = products.rename(columns={'item_id': 'product_id'})
         logger.info("Training rules generated")
 
+        logger.info(train_rules_final.head())
         # Prior orders with user_id, product_id, product_name
         test_order = pd.merge(test_data, products, how='left', on='product_id')
         test_order = pd.merge(test_order, orders, how='left', on='order_id')
@@ -119,6 +122,8 @@ def run_scores(args):
         logger.info("Test data ready and calculating scores now (5~10 min)...")
 
         scores = np.nanmean(test_scores(test_order, train_rules_final))
+        logger.info(scores)
+
         with open(args.output, 'w') as f:
             f.write("Test score is: ")
             f.write(str(scores))
