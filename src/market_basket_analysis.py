@@ -91,7 +91,6 @@ def merge_item_name(ac_rules, item_name):
         ac_rules: dataframe with associate rules of pairs
         item_name: dataframe with item id associated to item name
     Returns:
-
     """
     try:
         columns = ['item_A', 'item_B', 'freq_AB', 'support_AB', 'freq_A', 'support_A', 'freq_B', 'support_B',
@@ -215,7 +214,12 @@ def run_analysis(args):
         column_names = ["item_name", "recommendation1", "recommendation2", "recommendation3", "recommendation4",
                         "recommendation5"]
         ls = []
+        item_list = set()
         for i in range(len(unique_B)):
+            temp = unique_B[i].replace(" ", "").lower()
+            if temp in item_list:
+                continue
+            item_list.add(temp)
             # find all pairs related to current item
             pairs = rules_final[rules_final.item_B == unique_B[i]].sort_values('lift', ascending=False)
             # if there's less than pairs, choose number of pairs as top n recommendations, otherwise choose top 5

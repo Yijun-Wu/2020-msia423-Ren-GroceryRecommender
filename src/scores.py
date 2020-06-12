@@ -118,7 +118,7 @@ def run_scores(args):
         test_order = test_order[:100000]
         logger.info("Test data ready and calculating scores now (5~10 min)...")
 
-        scores = np.mean(test_scores(test_order, train_rules_final))
+        scores = np.nanmean(test_scores(test_order, train_rules_final))
         with open(args.output, 'w') as f:
             f.write("Test score is: ")
             f.write(str(scores))
@@ -128,4 +128,3 @@ def run_scores(args):
         logger.warning('Could not generate scores for test dataset due to invalid input')
         raise Exception('Invalid input')
     return scores
-

@@ -5,7 +5,7 @@ import logging
 import pandas as pd
 import numpy as np
 from src.market_basket_analysis import freq, support, generate_pairs, merge_item_stats, merge_item_name, association_rules, update_filter_support
-from src.scores import get_recommendation
+from src.scores import get_recommendation, test_scores
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -219,32 +219,26 @@ def test_get_recommendation_unhappy():
     with pytest.raises(Exception):
         output = get_recommendation(test_cut, "Garlic Powder")
 
-# # happy test for function 'test_scores'
-# def test_test_scores_happy():
-#     """ Happy test for function 'test_scores'
-#         Return value of the function should be equal to manually calculated expected output
-#         Function: Calculate the test score of recommendations generated for test data
-#     """
-#     train_data = prior[:25947591]
-#     test_data = prior[25947591:]
-#     # Convert from DataFrame to a Series, with order_id as index and item_id as value
-#     train_data = train_data.set_index('order_id')['product_id'].rename('item_id')
-#     rules = association_rules(train_data, 0.01)
-#     products_df = products.rename(columns={'product_id': 'item_id', 'product_name': 'item_name'})
-#     train_rules_final = merge_item_name(rules, products_df).sort_values('lift', ascending=False)
-#
-#     test_order = pd.merge(test_data, products, how='left', on='product_id')
-#     test_order = pd.merge(test_order, orders, how='left', on='order_id')
-#
-#     output = test_scores(test_order, train_rules_final)
-#
-#     print(output)
-#
-# # unhappy test for function 'test_scores'
-# def test_test_scores_unhappy():
-#     """ Unhappy test for function 'test_scores'
-#         The input value is invalid so it should raise an exception error
-#     """
-#     expected_output = None
-#     with pytest.raises(Exception):
-#         output = test_scores(orders, raw_data)
+# happy test for function 'run_scores'
+def test_run_scores_happy():
+    """ Happy test for function 'run_scores'
+        Return value of the function should be equal to manually calculated expected output
+        Function: Calculate the test score of recommendations generated for test data
+        Error message raised due to limited dataset
+    """
+    expected_output = 0.6029545454545455
+    # take a sample of 1500 record
+    train_data = prior[:1000]
+    test_data = prior[1000:1500]
+    # Convert from DataFrame to a Series, with order_id as index and item_id as value
+    train_data = train_data.set_index('order_id')['product_id'].rename('item_id')
+    rules = association_rules(train_data, 0.01)
+    products_df = products.rename(columns={'product_id': 'item_id', 'product_name': 'item_name'})
+    train_rules_final = merge_item_name(rules, products_df).sort_values('lift', ascending=False)
+    products_df = products_df.rename(columns={'item_id': 'product_id'})
+    # Prior orders with user_id, product_id, product_name
+    test_sample = pd.merge(test_data, products_df, how='left', on='product_id')
+    test_order = pd.merge(test_sample, orders, how='left', on='order_id')
+    output = np.mean(test_scores(test_order, train_rules_final))
+
+    assert expected_output == output

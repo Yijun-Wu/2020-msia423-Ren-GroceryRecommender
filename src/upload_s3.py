@@ -1,11 +1,10 @@
-import os
 import sys
 import logging.config
 import boto3
 import botocore
 
-# logging.config.fileConfig(config.LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
+logging.getLogger('s3transfer').setLevel(logging.CRITICAL)
 
 def upload_to_s3(S3_PUBLIC_KEY, S3_SECRET_KEY, FILE_LOCATION1, FILE_NAME1, FILE_LOCATION2, FILE_NAME2, S3_BUCKET):
     """ Upload data to S3 bucket

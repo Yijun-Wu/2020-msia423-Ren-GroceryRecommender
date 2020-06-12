@@ -1,21 +1,19 @@
 # MSiA423 Grocery Recommender    
 Author: Jing Ren, QA: Aakanksha Sah
 
-<!-- toc -->
-- [Project Charter](#project-charter)
-- [Planning](#Planning)
-
 ## Project Charter
 ### Vision
-With coronavirus impact and Stay-at-Home order, even though you can still shop for food at the grocery store while keeping social distancing, you might find some items are in short supply or hesitant to go out at the first place. Many people choose to stock up foods, but what should you buy this time around? It is important to boost immunity in order to fight virus by eating a healthy diet. This application aims to help develop a grocery list that not only meets your appetite but also satisfies your health needs.
+With coronavirus impact and Stay-at-Home order, even though you can still shop for food at the grocery store while keeping social distancing, you might find some items are in short supply or hesitant to go out at the first place. Many times people forget about what they intend to buy, specially when they’re not physically in grocery stores, as stores normally put bundled item together in same shopping aisle. However, Amazon Fresh and Instacart got very limited delivery slots which are hard to find these days, so it's not easy to get the missing items in time. This application aims to help complete your grocery list by recommending bundled items so as to save your time and trouble, as well as meeting your shopping needs.
 
 ### Mission
-To generate grocery lists, this application will first prompt users to input one item on their current grocery list, and then make recommendations based on market basket analysis, which is derived from instacart customer orders dataset from Kaggle [https://www.kaggle.com/c/instacart-market-basket-analysis/data], as well as nutrition information, obtained from condiments dataset from data.world [https://data.world/us-usda-gov/27830bd2-53c4-4d7b-9686-eca1a695d92a]. With more data input, the list generated will become a closer match to your taste, while guaranteeing nutrition needs. Hopefully users will find the app save their time trying to figure out what food to buy and maintain a healthy diet during the COVID-19 pandemic.
+To generate grocery lists, this application will first prompt users to input one item on their current grocery list, and then make top 5 recommendations based on market basket analysis (association rules via apriori), which is derived from customer orders dataset from instacart [https://www.instacart.com/datasets/grocery-shopping-2017]. The items selected from recommendation list will also have corresponding recommendations. With more data input, the list generated will become a closer match to user's wish list items, and it also provides option of starting over by resetting the basket. Hopefully users will find the app save their time trying to remember what bundled items to buy and maintain a healthy diet during the COVID-19 pandemic.
 
 ### Success criteria
-Machine Learning Criteria: The success of this application will be examined by robustness of recommendations given, since it is hard to measure in an unsupervised learning model without labels. Yet the success of recommendation system also depends mainly on its ability to capture user’s preferences, and therefore, by user-centered metrics, we can prompt rating survey where user can rate his or her satisfaction level from 0 to 5, while average ratings taken as measurement criteria.
+Machine Learning Criteria: The success of this application will be examined by robustness of recommendations given, we mainly consider recommender’s ability to capture user’s preferences in this case. Therefore, we define score as fraction of n recommendations are “good”. One example could be mothers buy baby products such as milk and diapers together. So, we define score as fraction of n recommendations that are “good”. We start by recommend what can be bought with the first product in current order, and we will give 5 recommendations, then compare the next 4 actually bought products with this 5 recommendations. If there's a match, we will add 1 to the total score, so on so forth, and take total score divided by total number of recommendations.
+We aim to have score > 0.3, so that at least 30% of recommendations are matching actually ordered items.
 
-Business Success Criteria: This application will be deemed successful if 50% of new users come back to the app, and average session frequency reaches twice per month, showing user engagement.
+Business Success Criteria: This application will be deemed successful if 50% of new users come back to the app, and average session frequency reaches twice per month, showing user engagement. We would also consider customer satisfaction survey, level from 0 to 5, to get average user ratings as feedback.
+
 
 ## Planning
 ### Initiative 1: Data Preprocessing
@@ -56,24 +54,69 @@ I3E2 - 3 point
 ## Midterm Checkpoint
 ## Running the app
 ### Step 1: Download the dataset
-- Data Source: https://data.world/us-usda-gov/27830bd2-53c4-4d7b-9686-eca1a695d92a
-- File Name: food_display_table.csv 
+- Data Source: https://www.instacart.com/datasets/grocery-shopping-2017
+- File Name: order_products__prior.csv, orders.csv, products.csv
 
-The file needs to be manually downloaded, you should scroll down webpage to locate it. 
+The file needs to be manually downloaded, you need to first download `instacart_online_grocery_shopping_2017_05_01.tar.gz`, then unzip the compressed file folder to locate the files. 
 It is already downloaded and moved into `data/external` folder.
 Note that, we need to connect to Northwestern VPN for following steps.
 
-### Step 2. Add Configuration for AWS S3 bucket
-In order to connect to S3, you need to change credential information in `src/config.py` and `mys3config.env`.
-Replace access key id and secret access key with your own key from AWS account, as well as the name of your S3 bucket where you will store the data file. Specifically, these variables should be updated:
+
+### Step 2. Upload raw dataset into or download it from S3 bucket
+
+*1. Add Configuration for AWS S3 bucket*
+
+In order to connect to S3, you need to change credential information.
+In `src/config.py`, add the name of your S3 bucket where you will store the data file. 
 
 - S3_BUCKET
+
+In `mys3config.env`, replace access key id and secret access key with your own key from AWS account, as well as default region.
+
 - AWS_Access_Key_Id
 - AWS_Secret_Key
+- AWS_DEFAULT_REGION
 
 In addition, make sure your IP address is added in inbound rules and consistent with RDS setting, even if connected to Northwestern VPN, there might still be differences between IP addresses when you connect several times.
 
-### Step 3. Add Configuration for RDS/MYSQL database
+*2. Build Docker Image*
+
+`docker build -t grocery_recommender .`
+
+*3a. Upload Raw Data to S3*
+
+By running command below, the raw data will be uploaded to your S3 bucket successfully.
+
+`docker run --env-file=mys3config.env --mount type=bind,source="$(pwd)"/data,target=/app/data grocery_recommender src/upload_s3.py`
+
+*3b. Download Raw Data to S3*
+
+By running command below, the raw data will be downloaded from your S3 bucket successfully.
+
+`python3 run.py acquire --config=config/recommendation.yaml --s3bucket=nw-jren-s3-1 --output1=data/external/order_products__prior.csv --output2=data/external/orders.csv --output3=data/external/products.csv`
+
+Downloaded data will be stored into `data/external/order_products__prior.csv`, `data/external/orders.csv `, and `data/external/products.csv`.
+
+
+### Step 3. Perform market basket analysis and generate recommendations on all data
+
+`python3 run.py generate_rules --input1=data/external/order_products__prior.csv --input2=data/external/products.csv --output=data/external/recommendations.csv`
+
+Generated recommendation table will be stored into `data/external/recommendations.csv`.
+
+
+### Step 4. Evaluate scores of recommendation model on test data (after generating rules from train data)
+
+`python run.py get_scores --input1=data/external/order_products__prior.csv --input2=data/external/orders.csv --input3=data/external/products.csv --output=data/external/scores.txt`
+
+Generated test scores will be stored into `data/external/scores.txt`. This roughly approximates 0.4 before cutting dataset down due to limited RAM memory when running docker commands later.
+
+
+
+### Step 5. Write association rules' recommendations into RDS database
+
+*1. Add Configuration for creating database schema in RDS*
+
 Run this command from root directory,
 
 `vi .mysqlconfig` 
@@ -88,209 +131,83 @@ Update the following credentials which will be used to create the database:
 
 Save your file and set these environment variables in your setting by running:
 
-`source .mysqlconfig`
+`echo 'source .mysqlconfig' >> ~/.bashrc`
+`source ~/.bashrc`
 
-### Step 4. Add Configuration to Determine Whether Create Database Schema Locally in SQLite or in RDS 
-Select whether to use RDS instance or local SQLite database by changing the `DB_FLAG` variable in `config.py`.
-- If creating database schema locally, set `DB_FLAG = ""`.
-- If creating database schema in RDS, set `DB_FLAG = "RDS"`.
 
-### Step 5. Build Docker Image
+*2. Writing records into table in RDS database*
 
-`docker build -t grocery_recommender .`
 
-### Step 6. Create Database Schema
+`python3 run.py store_RDS --input=data/external/recommendations.csv --truncate=True --rds=True`
 
-`docker run --mount type=bind,source="$(pwd)"/data,target=/app/data grocery_recommender src/food_db.py`
+Change to `--rds=False` if you want the table stored in to local SQLite database.
+Change to `--truncate=False` if you don't need to delete table from database. It's set to True as default, so as to avoid issue of duplicate entry for primary key in sql database.
 
-To make sure things work out as expected, 
-- If you choose to create database schema locally, you can simply check `data/msia423_db.db`.
-- If you choose to create database schema in RDS, you can connect to SQL database by running `sh run_mysql_client.sh`
 
-After connecting to SQL database, enter query requests:
+*3a. Checking content in table created in RDS*
+
+Firstly, connect to RDS database,
+
+`sh run_mysql_client.sh`
+
+Then, select the database we're using,
 
 `use msia423_db;`
 
-`select * from food;`
+Now to display content of our current recommendation table,
 
-### Step 3. Upload Raw Data to S3
-By running command below, the raw datas will be uploaded to your S3 bucket successfully.
-
-`docker run --env-file=mys3config.env --mount type=bind,source="$(pwd)"/data,target=/app/data grocery_recommender src/upload_s3.py`
+`select * from Recommendation;`
 
 
-- [Directory structure](#directory-structure)
-- [Running the app](#running-the-app)
-  * [1. Initialize the database](#1-initialize-the-database)
-    + [Create the database with a single song](#create-the-database-with-a-single-song)
-    + [Adding additional songs](#adding-additional-songs)
-    + [Defining your engine string](#defining-your-engine-string)
-      - [Local SQLite database](#local-sqlite-database)
-  * [2. Configure Flask app](#2-configure-flask-app)
-  * [3. Run the Flask app](#3-run-the-flask-app)
-- [Running the app in Docker](#running-the-app-in-docker)
-  * [1. Build the image](#1-build-the-image)
-  * [2. Run the container](#2-run-the-container)
-  * [3. Kill the container](#3-kill-the-container)
-  * [Workaround for potential Docker problem for Windows.](#workaround-for-potential-docker-problem-for-windows)
+*3b. Checking content in table created locally*
 
-<!-- tocstop -->
-
-## Directory structure 
-
-```
-├── README.md                         <- You are here
-├── api
-│   ├── static/                       <- CSS, JS files that remain static
-│   ├── templates/                    <- HTML (or other code) that is templated and changes based on a set of inputs
-│   ├── boot.sh                       <- Start up script for launching app in Docker container.
-│   ├── Dockerfile                    <- Dockerfile for building image to run app  
-│
-├── config                            <- Directory for configuration files 
-│   ├── local/                        <- Directory for keeping environment variables and other local configurations that *do not sync** to Github 
-│   ├── logging/                      <- Configuration of python loggers
-│   ├── flaskconfig.py                <- Configurations for Flask API 
-│
-├── data                              <- Folder that contains data used or generated. Only the external/ and sample/ subdirectories are tracked by git. 
-│   ├── external/                     <- External data sources, usually reference data,  will be synced with git
-│   ├── sample/                       <- Sample data used for code development and testing, will be synced with git
-│
-├── deliverables/                     <- Any white papers, presentations, final work products that are presented or delivered to a stakeholder 
-│
-├── docs/                             <- Sphinx documentation based on Python docstrings. Optional for this project. 
-│
-├── figures/                          <- Generated graphics and figures to be used in reporting, documentation, etc
-│
-├── models/                           <- Trained model objects (TMOs), model predictions, and/or model summaries
-│
-├── notebooks/
-│   ├── archive/                      <- Develop notebooks no longer being used.
-│   ├── deliver/                      <- Notebooks shared with others / in final state
-│   ├── develop/                      <- Current notebooks being used in development.
-│   ├── template.ipynb                <- Template notebook for analysis with useful imports, helper functions, and SQLAlchemy setup. 
-│
-├── reference/                        <- Any reference material relevant to the project
-│
-├── src/                              <- Source data for the project 
-│
-├── test/                             <- Files necessary for running model tests (see documentation below) 
-│
-├── app.py                            <- Flask wrapper for running the model 
-├── run.py                            <- Simplifies the execution of one or more of the src scripts  
-├── requirements.txt                  <- Python package dependencies 
-```
+If you choose to create database schema locally, you can simply check `data/msia423_db.db`.
 
 
-#### Create the database with a single song 
-To create the database in the location configured in `config.py` with one initial song, run: 
 
-`python run.py create_db --engine_string=<engine_string> --artist=<ARTIST> --title=<TITLE> --album=<ALBUM>`
+### Step 6. Running the entire model pipeline with docker command
 
-By default, `python run.py create_db` creates a database at `sqlite:///data/tracks.db` with the initial song *Radar* by Britney spears. 
-#### Adding additional songs 
-To add an additional song:
-
-`python run.py ingest --engine_string=<engine_string> --artist=<ARTIST> --title=<TITLE> --album=<ALBUM>`
-
-By default, `python run.py ingest` adds *Minor Cause* by Emancipator to the SQLite database located in `sqlite:///data/tracks.db`.
-
-#### Defining your engine string 
-A SQLAlchemy database connection is defined by a string with the following format:
-
-`dialect+driver://username:password@host:port/database`
-
-The `+dialect` is optional and if not provided, a default is used. For a more detailed description of what `dialect` and `driver` are and how a connection is made, you can see the documentation [here](https://docs.sqlalchemy.org/en/13/core/engines.html). We will cover SQLAlchemy and connection strings in the SQLAlchemy lab session on 
-##### Local SQLite database 
-
-A local SQLite database can be created for development and local testing. It does not require a username or password and replaces the host and port with the path to the database file: 
-
-```python
-engine_string='sqlite:///data/tracks.db'
-
-```
-
-The three `///` denote that it is a relative path to where the code is being run (which is from the root of this directory).
-
-You can also define the absolute path with four `////`, for example:
-
-```python
-engine_string = 'sqlite://///Users/cmawer/Repos/2020-MSIA423-template-repository/data/tracks.db'
-```
+Firstly, we need to export environmental variables into our environment by using these commands in terminal,
 
 
-### 2. Configure Flask app 
+`export AWS_Access_Key_Id=<Your Access Key ID>`
 
-`config/flaskconfig.py` holds the configurations for the Flask app. It includes the following configurations:
 
-```python
-DEBUG = True  # Keep True for debugging, change to False when moving to production 
-LOGGING_CONFIG = "config/logging/local.conf"  # Path to file that configures Python logger
-HOST = "0.0.0.0" # the host that is running the app. 0.0.0.0 when running locally 
-PORT = 5000  # What port to expose app on. Must be the same as the port exposed in app/Dockerfile 
-SQLALCHEMY_DATABASE_URI = 'sqlite:///data/tracks.db'  # URI (engine string) for database that contains tracks
-APP_NAME = "penny-lane"
-SQLALCHEMY_TRACK_MODIFICATIONS = True 
-SQLALCHEMY_ECHO = False  # If true, SQL for queries made will be printed
-MAX_ROWS_SHOW = 100 # Limits the number of rows returned from the database 
-```
+`export AWS_Secret_Key=<Your Secret Key ID>`
 
-### 3. Run the Flask app 
+
+`export SQLALCHEMY_DATABASE_URI=<Your SQLALCHEMY DATABASE URI>`
+
+
+Then, running run-pipeline.sh by following lines:
+
+
+`docker build -t grocery_recommender .`
+
+`docker run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e SQLALCHEMY_DATABASE_URI --mount type=bind,source="$(pwd)/data",target=/app/data/ grocery_recommender run-pipeline.sh`
+
+
+
+### Step 7. Running unit tests for each function
+
+Unit test is run for `src/market_basket_analysis.py` and `src/scores.py`.
+
+Other functions are for download/upload/database creation purpose, so we won't perform tests in this case.
+
+`docker build -t grocery_recommender .`
+
+`docker run grocery_recommender pytest`
+
+
+
+### Step 8. Running the Flask app
 
 To run the Flask app, run: 
 
-```bash
-python app.py
-```
+`docker build -f app/Dockerfile -t grocery_recommender .`
+
+`docker run -e SQLALCHEMY_DATABASE_URI --mount type=bind,source="$(pwd)",target=/app -p 5000:5000 grocery_recommender python3 app.py`
 
 You should now be able to access the app at http://0.0.0.0:5000/ in your browser.
 
-## Running the app in Docker 
 
-### 1. Build the image 
-
-The Dockerfile for running the flask app is in the `app/` folder. To build the image, run from this directory (the root of the repo): 
-
-```bash
- docker build -f app/Dockerfile -t pennylane .
-```
-
-This command builds the Docker image, with the tag `pennylane`, based on the instructions in `app/Dockerfile` and the files existing in this directory.
- 
-### 2. Run the container 
-
-To run the app, run from this directory: 
-
-```bash
-docker run -p 5000:5000 --name test pennylane
-```
-You should now be able to access the app at http://0.0.0.0:5000/ in your browser.
-
-This command runs the `pennylane` image as a container named `test` and forwards the port 5000 from container to your laptop so that you can access the flask app exposed through that port. 
-
-If `PORT` in `config/flaskconfig.py` is changed, this port should be changed accordingly (as should the `EXPOSE 5000` line in `app/Dockerfile`)
-
-### 3. Kill the container 
-
-Once finished with the app, you will need to kill the container. To do so: 
-
-```bash
-docker kill test 
-```
-
-where `test` is the name given in the `docker run` command.
-
-### Workaround for potential Docker problem for Windows.
-
-It is possible that Docker will have a problem with the bash script `app/boot.sh` that is used when running on a Windows machine. Windows can encode the script wrongly so that when it copies over to the Docker image, it is corrupted. If this happens to you, try using the alternate Dockerfile, `app/Dockerfile_windows`, i.e.:
-
-```bash
- docker build -f app/Dockerfile_windows -t pennylane .
-```
-
-then run the same `docker run` command: 
-
-```bash
-docker run -p 5000:5000 --name test pennylane
-```
-
-The new image defines the entry command as `python3 app.py` instead of `./boot.sh`. Building the sample PennyLane image this way will require initializing the database prior to building the image so that it is copied over, rather than created when the container is run. Therefore, please **do the step [Create the database with a single song](#create-the-database-with-a-single-song) above before building the image**.
