@@ -109,8 +109,9 @@ Generated recommendation table will be stored into `data/external/recommendation
 
 `python3 run.py get_scores --input1=data/external/order_products__prior.csv --input2=data/external/orders.csv --input3=data/external/products.csv --output=data/external/scores.txt`
 
-Generated test scores will be stored into `data/external/scores.txt`. This roughly approximates 0.4 before cutting dataset down due to limited RAM memory when running docker commands later.
-
+Generated test scores will be stored into `data/external/scores.txt`.
+With over 3 million lines, it could take a few hours to run the test score, so as to save your running time, we only take a sample of records at this moment to check test score.
+This score roughly stabilizes around 0.4 with whole dataset, before cutting it down due to limited RAM memory.
 
 
 ### Step 5. Write association rules' recommendations into RDS database
