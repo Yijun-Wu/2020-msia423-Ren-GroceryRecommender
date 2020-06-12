@@ -11,6 +11,3 @@ python3 run.py get_scores --input1=data/external/order_products__prior.csv --inp
 
 # Store generated recommendations into RDS
 python3 run.py store_RDS --input=data/external/recommendations.csv --truncate=True --rds=True
-
-# Perform unit test all functions
-# docker run grocery_recommender pytest

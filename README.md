@@ -107,7 +107,7 @@ Generated recommendation table will be stored into `data/external/recommendation
 
 ### Step 4. Evaluate scores of recommendation model on test data (after generating rules from train data)
 
-`python run.py get_scores --input1=data/external/order_products__prior.csv --input2=data/external/orders.csv --input3=data/external/products.csv --output=data/external/scores.txt`
+`python3 run.py get_scores --input1=data/external/order_products__prior.csv --input2=data/external/orders.csv --input3=data/external/products.csv --output=data/external/scores.txt`
 
 Generated test scores will be stored into `data/external/scores.txt`. This roughly approximates 0.4 before cutting dataset down due to limited RAM memory when running docker commands later.
 
