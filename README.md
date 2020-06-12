@@ -9,10 +9,14 @@ With coronavirus impact and Stay-at-Home order, even though you can still shop f
 To generate grocery lists, this application will first prompt users to input one item on their current grocery list, and then make top 5 recommendations based on market basket analysis (association rules via apriori), which is derived from customer orders dataset from instacart. The items selected from recommendation list will also have corresponding recommendations. With more data input, the list generated will become a closer match to user's wish list items, and it also provides option of starting over by resetting the basket. Hopefully users will find the app save their time and maintain a healthy diet during the COVID-19 pandemic.
 
 ### Success criteria
-**Machine Learning Criteria**: The success of this application will be examined by robustness of recommendations given, we mainly consider recommender’s ability to capture user’s preferences in this case. Therefore, we define score as fraction of n recommendations are “good”. One example could be mothers buy baby products such as milk and diapers together. So, we define score as fraction of n recommendations that are “good”. We start by recommend what can be bought with the first product in current order, and we will give 5 recommendations, then compare the next 4 actually bought products with this 5 recommendations. If there's a match, we will add 1 to the total score, so on so forth, and take total score divided by total number of recommendations.
+**Machine Learning Criteria**: 
+
+The success of this application will be examined by robustness of recommendations given, we mainly consider recommender’s ability to capture user’s preferences in this case. Therefore, we define score as fraction of n recommendations are “good”. One example could be mothers buy baby products such as milk and diapers together. So, we define score as fraction of n recommendations that are “good”. We start by recommend what can be bought with the first product in current order, and we will give 5 recommendations, then compare the next 4 actually bought products with this 5 recommendations. If there's a match, we will add 1 to the total score, so on so forth, and take total score divided by total number of recommendations.
 We aim to have score > 0.3, so that at least 30% of recommendations are matching actually ordered items.
 
-**Business Success Criteria**: This application will be deemed successful if 50% of new users come back to the app, and average session frequency reaches twice per month, showing user engagement. We would also consider customer satisfaction survey, level from 0 to 5, to get average user ratings as feedback.
+**Business Success Criteria**: 
+
+This application will be deemed successful if 50% of new users come back to the app, and average session frequency reaches twice per month, showing user engagement. We would also consider customer satisfaction survey, level from 0 to 5, to get average user ratings as feedback.
 
 
 ## Planning
