@@ -10,12 +10,6 @@ import src.upload_s3 as u3
 logging.basicConfig(format='%(name)-12s %(levelname)-8s %(message)s', level=logging.DEBUG)
 logger = logging.getLogger('run-reproducibility')
 
-from src.download_s3 import download_s3
-# from src.recommender_db import
-from src.market_basket_analysis import freq, support, generate_pairs, merge_item_stats, merge_item_name, association_rules, run_analysis
-from src.scores import get_recommendation, test_scores, run_scores
-
-
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description="Acquire, generate rules, test scores, and store to RDS from orders data")
