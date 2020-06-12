@@ -239,7 +239,6 @@ def test_get_scores_happy():
     """ Happy test for function 'get_scores'
         Return value of the function should be equal to manually calculated expected output
         Function: Calculate the test score of recommendations generated for test data
-        Error message raised due to limited dataset
     """
     expected_output = 0.6029545454545455
     # take a sample of 1500 record
