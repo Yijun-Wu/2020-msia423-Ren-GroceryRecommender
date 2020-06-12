@@ -20,6 +20,7 @@ orders = pd.read_csv('data/external/orders.csv')
 prior = pd.read_csv('data/external/order_products__prior.csv')
 products = pd.read_csv('data/external/products.csv')
 
+
 # happy test for function 'freq'
 def test_freq_happy():
     """ Happy test for function 'freq'
@@ -31,6 +32,7 @@ def test_freq_happy():
     output = freq(test_cut)
     assert expected_output.equals(output)
 
+
 # unhappy test for function 'freq'
 def test_freq_unhappy():
     """ Unhappy test for function 'freq'
@@ -39,6 +41,7 @@ def test_freq_unhappy():
     expected_output = None
     with pytest.raises(Exception):
         output = freq(raw_data)
+
 
 # happy test for function 'support'
 def test_support_happy():
@@ -53,6 +56,7 @@ def test_support_happy():
 
     assert expected_output.equals(output)
 
+
 # unhappy test for function 'support'
 def test_support_unhappy():
     """ Unhappy test for function 'function'
@@ -62,6 +66,7 @@ def test_support_unhappy():
     freq_res = freq(test_cut).to_frame("freq")
     with pytest.raises(Exception):
         output = support(raw_data, freq_res)
+
 
 # happy test for function 'update_filter_support'
 def test_update_filter_support_happy():
@@ -76,6 +81,7 @@ def test_update_filter_support_happy():
 
     assert expected_output.equals(output) and expected_output2 == filtered_orders.tolist()
 
+
 # unhappy test for function 'update_filter_support'
 def test_update_filter_support_unhappy():
     """ Unhappy test for function 'update_filter_support'
@@ -84,6 +90,7 @@ def test_update_filter_support_unhappy():
     expected_output = None
     with pytest.raises(Exception):
         output = update_filter_support(raw_data, 0.01)
+
 
 # happy test for function 'merge_item_stats'
 def test_merge_item_stats_happy():
@@ -118,6 +125,7 @@ def test_merge_item_stats_happy():
                                                                                         'support_B'])
     assert expected_output.equals(output)
 
+
 # unhappy test for function 'merge_item_stats'
 def test_merge_item_stats_unhappy():
     """ Unhappy test for function 'merge_item_stats'
@@ -128,6 +136,7 @@ def test_merge_item_stats_unhappy():
     stats = support(test_cut, stats)
     with pytest.raises(Exception):
         output = merge_item_stats(raw_data, stats)
+
 
 # happy test for function 'association_rules'
 def test_association_rules_happy():
@@ -151,6 +160,7 @@ def test_association_rules_happy():
                                             'support_B', 'confidence_AtoB', 'confidence_BtoA', 'lift'])
     assert expected_output.equals(output)
 
+
 # unhappy test for function 'association_rules'
 def test_association_rules_unhappy():
     """ Unhappy test for function 'association_rules'
@@ -159,6 +169,7 @@ def test_association_rules_unhappy():
     expected_output = None
     with pytest.raises(Exception):
         output = association_rules(raw_data, 0.01)
+
 
 # happy test for function 'merge_item_name'
 def test_merge_item_name_happy():
@@ -185,6 +196,7 @@ def test_merge_item_name_happy():
                                             'support_B', 'confidence_AtoB', 'confidence_BtoA', 'lift'])
     assert expected_output.equals(output)
 
+
 # unhappy test for function 'merge_item_name'
 def test_merge_item_name_unhappy():
     """ Unhappy test for function 'merge_item_name'
@@ -194,6 +206,7 @@ def test_merge_item_name_unhappy():
     rules = association_rules(test_cut, 0.01)
     with pytest.raises(Exception):
         output = merge_item_name(rules, raw_data).sort_values('lift', ascending=False)
+
 
 # happy test for function 'get_recommendation'
 def test_get_recommendation_happy():
@@ -210,6 +223,7 @@ def test_get_recommendation_happy():
                                             'recommendation4', 'recommendation5'])
     assert expected_output.equals(table) and count == 2
 
+
 # unhappy test for function 'get_recommendation'
 def test_get_recommendation_unhappy():
     """ Unhappy test for function 'get_recommendation'
@@ -219,8 +233,9 @@ def test_get_recommendation_unhappy():
     with pytest.raises(Exception):
         output = get_recommendation(test_cut, "Garlic Powder")
 
-# happy test for function 'run_scores'
-def test_run_scores_happy():
+
+# happy test for function 'test_scores'
+def test_test_scores_happy():
     """ Happy test for function 'run_scores'
         Return value of the function should be equal to manually calculated expected output
         Function: Calculate the test score of recommendations generated for test data
@@ -239,6 +254,16 @@ def test_run_scores_happy():
     # Prior orders with user_id, product_id, product_name
     test_sample = pd.merge(test_data, products_df, how='left', on='product_id')
     test_order = pd.merge(test_sample, orders, how='left', on='order_id')
-    output = np.mean(test_scores(test_order, train_rules_final))
+    output = np.nanmean(test_scores(test_order, train_rules_final))
 
     assert expected_output == output
+
+
+# unhappy test for function 'test_scores'
+def test_test_scores_unhappy():
+    """ Unhappy test for function 'run_scores'
+        The input value is invalid so it should raise an exception error
+    """
+    expected_output = None
+    with pytest.raises(Exception):
+        output = test_scores(test_cut, "Garlic Powder")

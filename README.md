@@ -6,17 +6,13 @@ Author: Jing Ren, QA: Aakanksha Sah
 With coronavirus impact and Stay-at-Home order, even though you can still shop for food at the grocery store while keeping social distancing, you might find some items are in short supply or hesitant to go out at the first place. Many times people forget about what they intend to buy, specially when they’re not physically in grocery stores, as stores normally put bundled item together in same shopping aisle. However, Amazon Fresh and Instacart got very limited delivery slots which are hard to find these days, so it's not easy to get the missing items in time. This application aims to help complete your grocery list by recommending bundled items so as to save your time and trouble, as well as meeting your shopping needs.
 
 ### Mission
-To generate grocery lists, this application will first prompt users to input one item on their current grocery list, and then make top 5 recommendations based on market basket analysis (association rules via apriori), which is derived from customer orders dataset from instacart. The items selected from recommendation list will also have corresponding recommendations. With more data input, the list generated will become a closer match to user's wish list items, and it also provides option of starting over by resetting the basket. Hopefully users will find the app save their time and maintain a healthy diet during the COVID-19 pandemic.
+To generate grocery lists, this application will first prompt users to input one item on their current grocery list, and then make top 5 recommendations based on market basket analysis (association rules via apriori), which is derived from customer orders dataset from instacart [https://www.instacart.com/datasets/grocery-shopping-2017]. The items selected from recommendation list will also have corresponding recommendations. With more data input, the list generated will become a closer match to user's wish list items, and it also provides option of starting over by resetting the basket. Hopefully users will find the app save their time trying to remember what bundled items to buy and maintain a healthy diet during the COVID-19 pandemic.
 
 ### Success criteria
-**Machine Learning Criteria**: 
-
-The success of this application will be examined by robustness of recommendations given, we mainly consider recommender’s ability to capture user’s preferences in this case. Therefore, we define score as fraction of n recommendations are “good”. One example could be mothers buy baby products such as milk and diapers together. So, we define score as fraction of n recommendations that are “good”. We start by recommend what can be bought with the first product in current order, and we will give 5 recommendations, then compare the next 4 actually bought products with this 5 recommendations. If there's a match, we will add 1 to the total score, so on so forth, and take total score divided by total number of recommendations.
+Machine Learning Criteria: The success of this application will be examined by robustness of recommendations given, we mainly consider recommender’s ability to capture user’s preferences in this case. Therefore, we define score as fraction of n recommendations are “good”. One example could be mothers buy baby products such as milk and diapers together. So, we define score as fraction of n recommendations that are “good”. We start by recommend what can be bought with the first product in current order, and we will give 5 recommendations, then compare the next 4 actually bought products with this 5 recommendations. If there's a match, we will add 1 to the total score, so on so forth, and take total score divided by total number of recommendations.
 We aim to have score > 0.3, so that at least 30% of recommendations are matching actually ordered items.
 
-**Business Success Criteria**: 
-
-This application will be deemed successful if 50% of new users come back to the app, and average session frequency reaches twice per month, showing user engagement. We would also consider customer satisfaction survey, level from 0 to 5, to get average user ratings as feedback.
+Business Success Criteria: This application will be deemed successful if 50% of new users come back to the app, and average session frequency reaches twice per month, showing user engagement. We would also consider customer satisfaction survey, level from 0 to 5, to get average user ratings as feedback.
 
 
 ## Planning
@@ -55,17 +51,15 @@ I3E1 - 4 point
 I3E2 - 3 point
 
 
+## Midterm Checkpoint
 ## Running the app
 ### Step 1: Download the dataset
 
 - Data Source: https://www.instacart.com/datasets/grocery-shopping-2017
 - File Name: order_products__prior.csv, orders.csv, products.csv
 
-The file needs to be manually downloaded, you need to first download 
-`instacart_online_grocery_shopping_2017_05_01.tar.gz`, then unzip the compressed file folder to locate the files. 
-
+The file needs to be manually downloaded, you need to first download `instacart_online_grocery_shopping_2017_05_01.tar.gz`, then unzip the compressed file folder to locate the files. 
 It is already downloaded and moved into `data/external` folder.
-
 **Note that, we need to connect to Northwestern VPN for following steps.**
 
 
@@ -241,11 +235,11 @@ docker run -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e SQLALCHEMY_DATABASE_
 
 Unit test is run for `src/market_basket_analysis.py` and `src/scores.py`.
 
-Other functions that interact with S3, a database or API, or pull together all the functionality for a step, we won't perform tests in these cases.
+Other functions are for download / upload /database creation purpose, so we won't perform tests in this case.
 
 ```
 docker build -t grocery_recommender .
-docker run grocery_recommender run_test.sh
+docker run grocery_recommender pytest
 ```
 
 
