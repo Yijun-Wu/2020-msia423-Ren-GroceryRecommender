@@ -98,8 +98,8 @@ def run_scores(args):
         logger.info("Datasets read in successfully")
 
         # Do a 80:20 train/test split on data
-        train_data = prior[:25947591]
-        test_data = prior[25947591:]
+        train_data = prior.head(int(len(orders)*(80/100)))
+        test_data = prior[len(train_data):]
 
         # Convert from DataFrame to a Series, with order_id as index and item_id as value
         train_data = train_data.set_index('order_id')['product_id'].rename('item_id')
@@ -115,13 +115,14 @@ def run_scores(args):
         # With over 1 million lines, it takes longer than an hour for me to run the test score
         # So as to save your running time, we only take 100000 records at this moment to check test score
         # But we can see the trend for test score stabilizes around 0.4 ultimately
-        test_order = test_order[:100000]
+
         logger.info("Test data ready and calculating scores now (5~10 min)...")
 
         scores = np.nanmean(test_scores(test_order, train_rules_final))
         with open(args.output, 'w') as f:
             f.write("Test score is: ")
             f.write(str(scores))
+        logger.info(scores)
         logger.info("Test score saved to file: " + args.output)
 
     except Exception as e:
