@@ -1,12 +1,13 @@
 import sys
+import logging
 import logging.config
 import boto3
 import botocore
 import os
 import yaml
 
-logger = logging.getLogger(__name__)
-logging.getLogger('s3transfer').setLevel(logging.CRITICAL)
+logger = logging.getLogger('s3transfer')
+logger.setLevel(logging.CRITICAL)
 
 def upload_to_s3(args):
     """ Upload data to S3 bucket
@@ -20,7 +21,7 @@ def upload_to_s3(args):
     config = config['upload_to_s3']
 
     try:
-        s3 = boto3.client('s3', aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"), aws_secret_access_key=S3_SECRET_KEY)
+        s3 = boto3.client('s3', aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"), aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"))
         logger.info("AWS S3 Credentials Valid")
         try:
             s3.upload_file(args.input1, args.s3bucket, config['FILE_NAME1'])
