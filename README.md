@@ -63,6 +63,7 @@ I3E2 - 3 point
 
 The file needs to be manually downloaded, you need to first download 
 `instacart_online_grocery_shopping_2017_05_01.tar.gz`, then unzip the compressed file folder to locate the files. 
+
 It is already downloaded and moved into `data/external` folder.
 
 **Note that, we need to connect to Northwestern VPN for following steps.**
