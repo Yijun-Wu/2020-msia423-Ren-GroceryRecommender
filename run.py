@@ -1,30 +1,63 @@
 import argparse
+import logging
+import yaml
+import pandas as pd
+import os
 
-from src.add_songs import create_db, add_track
+import src.download_s3 as d3
+import src.market_basket_analysis as mba
+import src.scores as sc
+import src.recommender_db as db
+
+logging.basicConfig(format='%(name)-12s %(levelname)-8s %(message)s', level=logging.DEBUG)
+logger = logging.getLogger('run-reproducibility')
+
+from src.download_s3 import download_s3
+# from src.recommender_db import
+from src.market_basket_analysis import freq, support, generate_pairs, merge_item_stats, merge_item_name, association_rules, run_analysis
+from src.scores import get_recommendation, test_scores, run_scores
+
 
 if __name__ == '__main__':
 
-    # Add parsers for both creating a database and adding songs to it
-    parser = argparse.ArgumentParser(description="Create and/or add data to database")
+    parser = argparse.ArgumentParser(description="Acquire, generate rules, test scores, and store to RDS from orders data")
     subparsers = parser.add_subparsers()
 
-    # Sub-parser for creating a database
-    sb_create = subparsers.add_parser("create_db", description="Create database")
-    sb_create.add_argument("--artist", default="Britney Spears", help="Artist of song to be added")
-    sb_create.add_argument("--title", default="Radar", help="Title of song to be added")
-    sb_create.add_argument("--album", default="Circus", help="Album of song being added.")
-    sb_create.add_argument("--engine_string", default='sqlite:///data/tracks.db',
-                           help="SQLAlchemy connection URI for database")
-    sb_create.set_defaults(func=create_db)
+    # Acquire data from S3 bucket
+    sb_dataset = subparsers.add_parser("acquire", description="download data from S3")
+    sb_dataset.add_argument('--config', help='path to yaml file with configurations')
+    sb_dataset.add_argument('--s3bucket', help='S3 bucket name')
+    sb_dataset.add_argument('--output1', default=None, help='prior orders data')
+    sb_dataset.add_argument('--output2', default=None, help='orders data')
+    sb_dataset.add_argument('--output3', default=None, help='products data')
+    sb_dataset.set_defaults(func=d3.download_s3)
 
-    # Sub-parser for ingesting new data
-    sb_ingest = subparsers.add_parser("ingest", description="Add data to database")
-    sb_ingest.add_argument("--artist", default="Emancipator", help="Artist of song to be added")
-    sb_ingest.add_argument("--title", default="Minor Cause", help="Title of song to be added")
-    sb_ingest.add_argument("--album", default="Dusk to Dawn", help="Album of song being added")
-    sb_ingest.add_argument("--engine_string", default='sqlite:///data/tracks.db',
-                           help="SQLAlchemy connection URI for database")
-    sb_ingest.set_defaults(func=add_track)
+    # Generate recommendation table based association rules of market basket analysis on all data
+    sb_rules = subparsers.add_parser("generate_rules", description="generate rules")
+    sb_rules.add_argument('--input1', default=None, help='prior orders data')
+    sb_rules.add_argument('--input2', default=None, help='products data')
+    sb_rules.add_argument('--output', default=None, help='recommendations generated')
+    sb_rules.set_defaults(func=mba.run_analysis)
+
+    # Evaluate scores of recommendation model on test data (after generating rules from train data)
+    sb_scores = subparsers.add_parser("get_scores", description="calculate test scores on rules generated")
+    sb_scores.add_argument('--input1', default=None, help='prior orders data')
+    sb_scores.add_argument('--input2', default=None, help='orders data')
+    sb_scores.add_argument('--input3', default=None, help='products data')
+    sb_scores.add_argument('--output', default=None, help='recommendations generated')
+    sb_scores.set_defaults(func=sc.run_scores)
+
+    # Store generated recommendations into RDS
+    sb_rds = subparsers.add_parser("store_RDS", description="store recommendations table into RDS")
+    sb_rds.add_argument('--input', default=None, help='recommendation table') # 'data/external/recommendations.csv
+    sb_rds.add_argument("--truncate", "-t", default=False,
+                        help="If given, delete current records from recommendation table so that table can be recreated without problem with unique id ")
+    sb_rds.add_argument("--rds", "-r", default=True,
+                        help="If true, store table into RDS database, otherwise the database would be created locally ")
+    sb_rds.set_defaults(func=db.create_rec_db)
+
 
     args = parser.parse_args()
     args.func(args)
+
+
