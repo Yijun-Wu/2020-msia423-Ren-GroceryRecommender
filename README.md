@@ -55,7 +55,6 @@ I3E1 - 4 point
 I3E2 - 3 point
 
 
-## Midterm Checkpoint
 ## Running the app
 ### Step 1: Download the dataset
 
